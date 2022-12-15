@@ -1,0 +1,9 @@
+{
+	"name": "xdadfpractice",
+	"location": "westus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "304b9cb4-c65d-4836-a705-4bebba9f872b",
+		"tenantId": "fd7affe8-3ec1-41cc-8271-31876e82918e"
+	}
+}

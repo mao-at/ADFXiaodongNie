@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "ForEach_n8w",
+				"name": "ForEach_vh7",
 				"type": "ForEach",
 				"dependsOn": [],
 				"userProperties": [],
@@ -14,7 +14,7 @@
 					},
 					"activities": [
 						{
-							"name": "Copy_n8w",
+							"name": "Copy_vh7",
 							"type": "Copy",
 							"dependsOn": [],
 							"policy": {
@@ -51,7 +51,7 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "SourceDataset_n8w",
+									"referenceName": "SourceDataset_vh7",
 									"type": "DatasetReference",
 									"parameters": {
 										"cw_schema": "@item().source.schema",
@@ -61,7 +61,7 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "DestinationDataset_n8w",
+									"referenceName": "DestinationDataset_vh7",
 									"type": "DatasetReference",
 									"parameters": {
 										"cw_schema": "@item().destination.schema",
@@ -1869,6 +1869,8 @@
 				]
 			}
 		},
-		"annotations": []
-	}
+		"annotations": [],
+		"lastPublishTime": "2022-12-16T01:39:55Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
 }

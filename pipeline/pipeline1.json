@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy data1",
+				"name": "Copy_OLTP_to_ODS",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -32,170 +32,218 @@
 						"mappings": [
 							{
 								"source": {
-									"name": "OrderID",
+									"name": "PersonID",
 									"type": "Int32",
 									"physicalType": "int"
 								},
 								"sink": {
-									"name": "OrderID",
+									"name": "PersonID",
 									"type": "Int32",
 									"physicalType": "Int32"
 								}
 							},
 							{
 								"source": {
-									"name": "CustomerID",
-									"type": "Int32",
-									"physicalType": "int"
-								},
-								"sink": {
-									"name": "CustomerID",
-									"type": "Int32",
-									"physicalType": "Int32"
-								}
-							},
-							{
-								"source": {
-									"name": "SalespersonPersonID",
-									"type": "Int32",
-									"physicalType": "int"
-								},
-								"sink": {
-									"name": "SalespersonPersonID",
-									"type": "Int32",
-									"physicalType": "Int32"
-								}
-							},
-							{
-								"source": {
-									"name": "PickedByPersonID",
-									"type": "Int32",
-									"physicalType": "int"
-								},
-								"sink": {
-									"name": "PickedByPersonID",
-									"type": "Int32",
-									"physicalType": "Int32"
-								}
-							},
-							{
-								"source": {
-									"name": "ContactPersonID",
-									"type": "Int32",
-									"physicalType": "int"
-								},
-								"sink": {
-									"name": "ContactPersonID",
-									"type": "Int32",
-									"physicalType": "Int32"
-								}
-							},
-							{
-								"source": {
-									"name": "BackorderOrderID",
-									"type": "Int32",
-									"physicalType": "int"
-								},
-								"sink": {
-									"name": "BackorderOrderID",
-									"type": "Int32",
-									"physicalType": "Int32"
-								}
-							},
-							{
-								"source": {
-									"name": "OrderDate",
-									"type": "DateTime",
-									"physicalType": "date"
-								},
-								"sink": {
-									"name": "OrderDate",
-									"type": "DateTime",
-									"physicalType": "DateTime"
-								}
-							},
-							{
-								"source": {
-									"name": "ExpectedDeliveryDate",
-									"type": "DateTime",
-									"physicalType": "date"
-								},
-								"sink": {
-									"name": "ExpectedDeliveryDate",
-									"type": "DateTime",
-									"physicalType": "DateTime"
-								}
-							},
-							{
-								"source": {
-									"name": "CustomerPurchaseOrderNumber",
+									"name": "FullName",
 									"type": "String",
 									"physicalType": "nvarchar"
 								},
 								"sink": {
-									"name": "CustomerPurchaseOrderNumber",
+									"name": "FullName",
 									"type": "String",
 									"physicalType": "String"
 								}
 							},
 							{
 								"source": {
-									"name": "IsUndersupplyBackordered",
+									"name": "PreferredName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "PreferredName",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "SearchName",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "SearchName",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "IsPermittedToLogon",
 									"type": "Boolean",
 									"physicalType": "bit"
 								},
 								"sink": {
-									"name": "IsUndersupplyBackordered",
+									"name": "IsPermittedToLogon",
 									"type": "Boolean",
 									"physicalType": "Boolean"
 								}
 							},
 							{
 								"source": {
-									"name": "Comments",
+									"name": "LogonName",
 									"type": "String",
 									"physicalType": "nvarchar"
 								},
 								"sink": {
-									"name": "Comments",
+									"name": "LogonName",
 									"type": "String",
 									"physicalType": "String"
 								}
 							},
 							{
 								"source": {
-									"name": "DeliveryInstructions",
+									"name": "IsExternalLogonProvider",
+									"type": "Boolean",
+									"physicalType": "bit"
+								},
+								"sink": {
+									"name": "IsExternalLogonProvider",
+									"type": "Boolean",
+									"physicalType": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "HashedPassword",
+									"type": "Byte[]",
+									"physicalType": "varbinary"
+								},
+								"sink": {
+									"name": "HashedPassword",
+									"type": "Byte[]",
+									"physicalType": "Byte[]"
+								}
+							},
+							{
+								"source": {
+									"name": "IsSystemUser",
+									"type": "Boolean",
+									"physicalType": "bit"
+								},
+								"sink": {
+									"name": "IsSystemUser",
+									"type": "Boolean",
+									"physicalType": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "IsEmployee",
+									"type": "Boolean",
+									"physicalType": "bit"
+								},
+								"sink": {
+									"name": "IsEmployee",
+									"type": "Boolean",
+									"physicalType": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "IsSalesperson",
+									"type": "Boolean",
+									"physicalType": "bit"
+								},
+								"sink": {
+									"name": "IsSalesperson",
+									"type": "Boolean",
+									"physicalType": "Boolean"
+								}
+							},
+							{
+								"source": {
+									"name": "UserPreferences",
 									"type": "String",
 									"physicalType": "nvarchar"
 								},
 								"sink": {
-									"name": "DeliveryInstructions",
+									"name": "UserPreferences",
 									"type": "String",
 									"physicalType": "String"
 								}
 							},
 							{
 								"source": {
-									"name": "InternalComments",
+									"name": "PhoneNumber",
 									"type": "String",
 									"physicalType": "nvarchar"
 								},
 								"sink": {
-									"name": "InternalComments",
+									"name": "PhoneNumber",
 									"type": "String",
 									"physicalType": "String"
 								}
 							},
 							{
 								"source": {
-									"name": "PickingCompletedWhen",
-									"type": "DateTime",
-									"physicalType": "datetime2"
+									"name": "FaxNumber",
+									"type": "String",
+									"physicalType": "nvarchar"
 								},
 								"sink": {
-									"name": "PickingCompletedWhen",
-									"type": "DateTime",
-									"physicalType": "DateTime"
+									"name": "FaxNumber",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "EmailAddress",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "EmailAddress",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Photo",
+									"type": "Byte[]",
+									"physicalType": "varbinary"
+								},
+								"sink": {
+									"name": "Photo",
+									"type": "Byte[]",
+									"physicalType": "Byte[]"
+								}
+							},
+							{
+								"source": {
+									"name": "CustomFields",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "CustomFields",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "OtherLanguages",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "OtherLanguages",
+									"type": "String",
+									"physicalType": "String"
 								}
 							},
 							{
@@ -212,12 +260,24 @@
 							},
 							{
 								"source": {
-									"name": "LastEditedWhen",
+									"name": "ValidFrom",
 									"type": "DateTime",
 									"physicalType": "datetime2"
 								},
 								"sink": {
-									"name": "LastEditedWhen",
+									"name": "ValidFrom",
+									"type": "DateTime",
+									"physicalType": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "ValidTo",
+									"type": "DateTime",
+									"physicalType": "datetime2"
+								},
+								"sink": {
+									"name": "ValidTo",
 									"type": "DateTime",
 									"physicalType": "DateTime"
 								}
@@ -235,9 +295,18 @@
 						"referenceName": "SqlServerTable1",
 						"type": "DatasetReference",
 						"parameters": {
-							"schema": "sales",
-							"tableName": "orders",
-							"dbName": "WideWorldImportersStandard"
+							"schema": {
+								"value": "@pipeline().parameters.sourceSchema",
+								"type": "Expression"
+							},
+							"tableName": {
+								"value": "@pipeline().parameters.sourceTable",
+								"type": "Expression"
+							},
+							"dbName": {
+								"value": "@pipeline().parameters.sourceDB",
+								"type": "Expression"
+							}
 						}
 					}
 				],
@@ -246,14 +315,43 @@
 						"referenceName": "SqlServerTable1",
 						"type": "DatasetReference",
 						"parameters": {
-							"schema": "sales",
-							"tableName": "order",
-							"dbName": "test_database"
+							"schema": {
+								"value": "@pipeline().parameters.sinkSchema",
+								"type": "Expression"
+							},
+							"tableName": {
+								"value": "@pipeline().parameters.sinkTable",
+								"type": "Expression"
+							},
+							"dbName": {
+								"value": "@pipeline().parameters.sinkDB",
+								"type": "Expression"
+							}
 						}
 					}
 				]
 			}
 		],
+		"parameters": {
+			"sourceSchema": {
+				"type": "String"
+			},
+			"sourceTable": {
+				"type": "String"
+			},
+			"sourceDB": {
+				"type": "String"
+			},
+			"sinkSchema": {
+				"type": "String"
+			},
+			"sinkTable": {
+				"type": "String"
+			},
+			"sinkDB": {
+				"type": "String"
+			}
+		},
 		"annotations": [],
 		"lastPublishTime": "2022-12-18T20:50:02Z"
 	},

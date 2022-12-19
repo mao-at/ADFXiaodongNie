@@ -32,252 +32,148 @@
 						"mappings": [
 							{
 								"source": {
-									"name": "PersonID",
+									"name": "OrderLineID",
 									"type": "Int32",
 									"physicalType": "int"
 								},
 								"sink": {
-									"name": "PersonID",
+									"name": "OrderLineID",
 									"type": "Int32",
 									"physicalType": "Int32"
 								}
 							},
 							{
 								"source": {
-									"name": "FullName",
-									"type": "String",
-									"physicalType": "nvarchar"
-								},
-								"sink": {
-									"name": "FullName",
-									"type": "String",
-									"physicalType": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "PreferredName",
-									"type": "String",
-									"physicalType": "nvarchar"
-								},
-								"sink": {
-									"name": "PreferredName",
-									"type": "String",
-									"physicalType": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "SearchName",
-									"type": "String",
-									"physicalType": "nvarchar"
-								},
-								"sink": {
-									"name": "SearchName",
-									"type": "String",
-									"physicalType": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "IsPermittedToLogon",
-									"type": "Boolean",
-									"physicalType": "bit"
-								},
-								"sink": {
-									"name": "IsPermittedToLogon",
-									"type": "Boolean",
-									"physicalType": "Boolean"
-								}
-							},
-							{
-								"source": {
-									"name": "LogonName",
-									"type": "String",
-									"physicalType": "nvarchar"
-								},
-								"sink": {
-									"name": "LogonName",
-									"type": "String",
-									"physicalType": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "IsExternalLogonProvider",
-									"type": "Boolean",
-									"physicalType": "bit"
-								},
-								"sink": {
-									"name": "IsExternalLogonProvider",
-									"type": "Boolean",
-									"physicalType": "Boolean"
-								}
-							},
-							{
-								"source": {
-									"name": "HashedPassword",
-									"type": "Byte[]",
-									"physicalType": "varbinary"
-								},
-								"sink": {
-									"name": "HashedPassword",
-									"type": "Byte[]",
-									"physicalType": "Byte[]"
-								}
-							},
-							{
-								"source": {
-									"name": "IsSystemUser",
-									"type": "Boolean",
-									"physicalType": "bit"
-								},
-								"sink": {
-									"name": "IsSystemUser",
-									"type": "Boolean",
-									"physicalType": "Boolean"
-								}
-							},
-							{
-								"source": {
-									"name": "IsEmployee",
-									"type": "Boolean",
-									"physicalType": "bit"
-								},
-								"sink": {
-									"name": "IsEmployee",
-									"type": "Boolean",
-									"physicalType": "Boolean"
-								}
-							},
-							{
-								"source": {
-									"name": "IsSalesperson",
-									"type": "Boolean",
-									"physicalType": "bit"
-								},
-								"sink": {
-									"name": "IsSalesperson",
-									"type": "Boolean",
-									"physicalType": "Boolean"
-								}
-							},
-							{
-								"source": {
-									"name": "UserPreferences",
-									"type": "String",
-									"physicalType": "nvarchar"
-								},
-								"sink": {
-									"name": "UserPreferences",
-									"type": "String",
-									"physicalType": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "PhoneNumber",
-									"type": "String",
-									"physicalType": "nvarchar"
-								},
-								"sink": {
-									"name": "PhoneNumber",
-									"type": "String",
-									"physicalType": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "FaxNumber",
-									"type": "String",
-									"physicalType": "nvarchar"
-								},
-								"sink": {
-									"name": "FaxNumber",
-									"type": "String",
-									"physicalType": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "EmailAddress",
-									"type": "String",
-									"physicalType": "nvarchar"
-								},
-								"sink": {
-									"name": "EmailAddress",
-									"type": "String",
-									"physicalType": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "Photo",
-									"type": "Byte[]",
-									"physicalType": "varbinary"
-								},
-								"sink": {
-									"name": "Photo",
-									"type": "Byte[]",
-									"physicalType": "Byte[]"
-								}
-							},
-							{
-								"source": {
-									"name": "CustomFields",
-									"type": "String",
-									"physicalType": "nvarchar"
-								},
-								"sink": {
-									"name": "CustomFields",
-									"type": "String",
-									"physicalType": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "OtherLanguages",
-									"type": "String",
-									"physicalType": "nvarchar"
-								},
-								"sink": {
-									"name": "OtherLanguages",
-									"type": "String",
-									"physicalType": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "LastEditedBy",
+									"name": "OrderID",
 									"type": "Int32",
 									"physicalType": "int"
 								},
 								"sink": {
-									"name": "LastEditedBy",
+									"name": "OrderID",
 									"type": "Int32",
 									"physicalType": "Int32"
 								}
 							},
 							{
 								"source": {
-									"name": "ValidFrom",
+									"name": "StockItemID",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "StockItemID",
+									"type": "Int32",
+									"physicalType": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "Description",
+									"type": "String",
+									"physicalType": "nvarchar"
+								},
+								"sink": {
+									"name": "Description",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "PackageTypeID",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "PackageTypeID",
+									"type": "Int32",
+									"physicalType": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "Quantity",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "Quantity",
+									"type": "Int32",
+									"physicalType": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "UnitPrice",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 2,
+									"precision": 18
+								},
+								"sink": {
+									"name": "UnitPrice",
+									"type": "Decimal",
+									"physicalType": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "TaxRate",
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 3,
+									"precision": 18
+								},
+								"sink": {
+									"name": "TaxRate",
+									"type": "Decimal",
+									"physicalType": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"name": "PickedQuantity",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "PickedQuantity",
+									"type": "Int32",
+									"physicalType": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "PickingCompletedWhen",
 									"type": "DateTime",
 									"physicalType": "datetime2"
 								},
 								"sink": {
-									"name": "ValidFrom",
+									"name": "PickingCompletedWhen",
 									"type": "DateTime",
 									"physicalType": "DateTime"
 								}
 							},
 							{
 								"source": {
-									"name": "ValidTo",
+									"name": "LastEditedBy",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "LastEditedBy",
+									"type": "Int32",
+									"physicalType": "Int32"
+								}
+							},
+							{
+								"source": {
+									"name": "LastEditedWhen",
 									"type": "DateTime",
 									"physicalType": "datetime2"
 								},
 								"sink": {
-									"name": "ValidTo",
+									"name": "LastEditedWhen",
 									"type": "DateTime",
 									"physicalType": "DateTime"
 								}

@@ -1,5 +1,5 @@
 {
-	"name": "pipeline1",
+	"name": "Copy_tables",
 	"properties": {
 		"activities": [
 			{
@@ -188,7 +188,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "SqlServerTable1",
+						"referenceName": "sql_dataset",
 						"type": "DatasetReference",
 						"parameters": {
 							"schema": {
@@ -208,7 +208,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "SqlServerTable1",
+						"referenceName": "sql_dataset",
 						"type": "DatasetReference",
 						"parameters": {
 							"schema": {

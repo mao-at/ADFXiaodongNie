@@ -17,6 +17,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "Orderlines"
+				},
+				{
+					"dataset": {
+						"referenceName": "sql_dataset",
+						"type": "DatasetReference"
+					},
+					"name": "DWorder"
 				}
 			],
 			"sinks": [],
@@ -39,6 +46,14 @@
 				{
 					"name": "AddComputeColumn2",
 					"description": "Creating/updating the columns."
+				},
+				{
+					"name": "HashValue",
+					"description": "Add hash column."
+				},
+				{
+					"name": "Hashref",
+					"description": "Add hash column."
 				}
 			],
 			"scriptLines": [
@@ -82,6 +97,31 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> Orderlines",
+				"source(output(",
+				"          {Order Key} as long,",
+				"          {City Key} as integer,",
+				"          {Customer Key} as integer,",
+				"          {Stock Item Key} as integer,",
+				"          {Order Date Key} as date,",
+				"          {Picked Date Key} as date,",
+				"          {Salesperson Key} as integer,",
+				"          {Picker Key} as integer,",
+				"          {WWI Order ID} as integer,",
+				"          {WWI Backorder ID} as integer,",
+				"          Description as string,",
+				"          Package as string,",
+				"          Quantity as integer,",
+				"          {Unit Price} as decimal(18,2),",
+				"          {Tax Rate} as decimal(18,3),",
+				"          {Total Excluding Tax} as decimal(18,2),",
+				"          {Tax Amount} as decimal(18,2),",
+				"          {Total Including Tax} as decimal(18,2),",
+				"          {Lineage Key} as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> DWorder",
 				"Order, Orderlines join(Order@OrderID == Orderlines@OrderID,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
@@ -109,7 +149,9 @@
 				"          Package = 'Null',",
 				"          {Total Excluding Tax} = round(multiply(Quantity, TaxRate),2)) ~> derivedColumn1",
 				"derivedColumn1 derive({Tax Amount} = round(multiply({Total Excluding Tax}, TaxRate),2)) ~> AddComputeColumn1",
-				"AddComputeColumn1 derive({Total Including Tax} = round(add({Total Excluding Tax}, {Tax Amount}),2)) ~> AddComputeColumn2"
+				"AddComputeColumn1 derive({Total Including Tax} = round(add({Total Excluding Tax}, {Tax Amount}),2)) ~> AddComputeColumn2",
+				"AddComputeColumn2 derive(inputHash = md5(OrderID,CustomerID)) ~> HashValue",
+				"DWorder derive(HashId = md5({Order Key},{Customer Key})) ~> Hashref"
 			]
 		}
 	}

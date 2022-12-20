@@ -273,7 +273,7 @@
 				"     insertable:true,",
 				"     updateable:true,",
 				"     upsertable:false,",
-				"     keys:[($order_key),'$customer_key'],",
+				"     keys:[($order_key),($customer_key)],",
 				"     skipKeyWrites:true,",
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",

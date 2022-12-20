@@ -91,7 +91,7 @@
 					"description": "Drop hash id column"
 				},
 				{
-					"name": "union1"
+					"name": "Union"
 				},
 				{
 					"name": "MarkAsInsert"
@@ -265,9 +265,9 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> DropUnwantHashColumn",
-				"MarkAsInsert, DropUnwantColumn union(byName: true)~> union1",
+				"MarkAsInsert, DropUnwantColumn union(byName: true)~> Union",
 				"DropUnwantHashColumn alterRow(insertIf(true())) ~> MarkAsInsert",
-				"union1 sink(allowSchemaDrift: true,",
+				"Union sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     deletable:false,",
 				"     insertable:true,",

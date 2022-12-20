@@ -1,0 +1,54 @@
+{
+	"name": "SDCtype2",
+	"properties": {
+		"activities": [
+			{
+				"name": "dataflow1",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "SCDtype2",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"ODSOrder": {
+								"schema": "sales",
+								"tableName": "orders",
+								"dbName": "ODS_database"
+							},
+							"ODSOrderlines": {
+								"schema": "sales",
+								"tableName": "orderlines",
+								"dbName": "ODS_database"
+							},
+							"DWorder": {
+								"schema": "fact",
+								"tableName": "order",
+								"dbName": "WideWorldImportersDW-Standard"
+							},
+							"DeminsionTableSink": {
+								"schema": "sales",
+								"tableName": "merge_order",
+								"dbName": "ODS_database"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"annotations": []
+	}
+}

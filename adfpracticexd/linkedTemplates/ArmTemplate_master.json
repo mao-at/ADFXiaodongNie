@@ -7,6 +7,10 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "adfpracticexd"
 		},
+		"AzureSqlDatabase1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase1'"
+		},
 		"ODS_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'ODS'"
@@ -14,6 +18,10 @@
 		"OLTP_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'OLTP'"
+		},
+		"linkedService1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'linkedService1'"
 		},
 		"sql_database_connectionString": {
 			"type": "secureString",
@@ -46,11 +54,17 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
+					"AzureSqlDatabase1_connectionString": {
+						"value": "[parameters('AzureSqlDatabase1_connectionString')]"
+					},
 					"ODS_connectionString": {
 						"value": "[parameters('ODS_connectionString')]"
 					},
 					"OLTP_connectionString": {
 						"value": "[parameters('OLTP_connectionString')]"
+					},
+					"linkedService1_connectionString": {
+						"value": "[parameters('linkedService1_connectionString')]"
 					},
 					"sql_database_connectionString": {
 						"value": "[parameters('sql_database_connectionString')]"

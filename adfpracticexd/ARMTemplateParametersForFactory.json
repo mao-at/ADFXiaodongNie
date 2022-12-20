@@ -5,10 +5,16 @@
 		"factoryName": {
 			"value": "adfpracticexd"
 		},
+		"AzureSqlDatabase1_connectionString": {
+			"value": ""
+		},
 		"ODS_connectionString": {
 			"value": ""
 		},
 		"OLTP_connectionString": {
+			"value": ""
+		},
+		"linkedService1_connectionString": {
 			"value": ""
 		},
 		"sql_database_connectionString": {

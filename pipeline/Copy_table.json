@@ -1,9 +1,9 @@
 {
-	"name": "Copy_tables",
+	"name": "Copy_table",
 	"properties": {
 		"activities": [
 			{
-				"name": "Copy_OLTP_to_ODS",
+				"name": "Copy data",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -23,8 +23,7 @@
 					"sink": {
 						"type": "SqlServerSink",
 						"writeBehavior": "insert",
-						"sqlWriterUseTableLock": false,
-						"tableOption": "autoCreate"
+						"sqlWriterUseTableLock": false
 					},
 					"enableStaging": false,
 					"translator": {
@@ -46,11 +45,11 @@
 								"type": "Expression"
 							},
 							"tableName": {
-								"value": "@pipeline().parameters.sourceTable",
+								"value": "@pipeline().parameters.sourceTablename",
 								"type": "Expression"
 							},
 							"dbName": {
-								"value": "@pipeline().parameters.sourceDB",
+								"value": "@pipeline().parameters.sourceDBname",
 								"type": "Expression"
 							}
 						}
@@ -66,11 +65,11 @@
 								"type": "Expression"
 							},
 							"tableName": {
-								"value": "@pipeline().parameters.sinkTable",
+								"value": "@pipeline().parameters.sinkTablename",
 								"type": "Expression"
 							},
 							"dbName": {
-								"value": "@pipeline().parameters.sinkDB",
+								"value": "@pipeline().parameters.sinkDBname",
 								"type": "Expression"
 							}
 						}
@@ -82,24 +81,22 @@
 			"sourceSchema": {
 				"type": "String"
 			},
-			"sourceTable": {
+			"sourceTablename": {
 				"type": "String"
 			},
-			"sourceDB": {
+			"sourceDBname": {
 				"type": "String"
 			},
 			"sinkSchema": {
 				"type": "String"
 			},
-			"sinkTable": {
+			"sinkTablename": {
 				"type": "String"
 			},
-			"sinkDB": {
+			"sinkDBname": {
 				"type": "String"
 			}
 		},
-		"annotations": [],
-		"lastPublishTime": "2022-12-18T20:50:02Z"
-	},
-	"type": "Microsoft.DataFactory/factories/pipelines"
+		"annotations": []
+	}
 }

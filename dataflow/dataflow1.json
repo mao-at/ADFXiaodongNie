@@ -1,0 +1,180 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "sql_dataset",
+						"type": "DatasetReference"
+					},
+					"name": "ODScustomer"
+				},
+				{
+					"dataset": {
+						"referenceName": "sql_dataset",
+						"type": "DatasetReference"
+					},
+					"name": "DWcustomer"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "sql_dataset",
+						"type": "DatasetReference"
+					},
+					"name": "UpdateDimensionTable"
+				}
+			],
+			"transformations": [
+				{
+					"name": "AddHashValue",
+					"description": "Add hash value column."
+				},
+				{
+					"name": "AddHashId",
+					"description": "Add hash value column."
+				},
+				{
+					"name": "CheckExistUpdateValue",
+					"description": "Check exist records in ODS customer table."
+				},
+				{
+					"name": "AddActiveColumn",
+					"description": "Add a column to show status."
+				},
+				{
+					"name": "AddActiveStatus",
+					"description": "Add a column to show status"
+				},
+				{
+					"name": "FilterUpdateRecords",
+					"description": "Filter all of the update records."
+				},
+				{
+					"name": "UpdateObsolete",
+					"description": "Update status of records and add end date. "
+				},
+				{
+					"name": "AddColumn",
+					"description": "Add two columns that match DW customer table. "
+				},
+				{
+					"name": "MaskAsUpdate"
+				},
+				{
+					"name": "MaskAsInsert"
+				},
+				{
+					"name": "DeletUnwantColumn",
+					"description": "Delete hash columns."
+				},
+				{
+					"name": "DropUnwantColumn",
+					"description": "Delete hash columns"
+				},
+				{
+					"name": "UnionODSandDW"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          CustomerID as integer,",
+				"          CustomerName as string,",
+				"          BillToCustomerID as integer,",
+				"          CustomerCategoryID as integer,",
+				"          BuyingGroupID as integer,",
+				"          PrimaryContactPersonID as integer,",
+				"          PostalCityID as integer,",
+				"          ValidFrom as timestamp,",
+				"          ValidTo as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> ODScustomer",
+				"source(output(",
+				"          {Customer Key} as integer,",
+				"          {WWI Customer ID} as integer,",
+				"          Customer as string,",
+				"          {Bill To Customer} as string,",
+				"          Category as string,",
+				"          {Buying Group} as string,",
+				"          {Primary Contact} as string,",
+				"          {Postal Code} as string,",
+				"          {Valid From} as timestamp,",
+				"          {Valid To} as timestamp,",
+				"          {Lineage Key} as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> DWcustomer",
+				"ODScustomer derive(HashId = md5(CustomerID),",
+				"          HashColumn = md5(byNames(['CustomerName','BillToCustomerID','CustomerCategoryID','BuyingGroupID','PrimaryContactPersonID','PostalCityID','ValidFrom','ValidTo']))) ~> AddHashValue",
+				"DWcustomer derive(HashId = md5({Customer Key}),",
+				"          HashColumn = md5(byNames(['{WWI Customer ID}','Customer','{Bill To Customer}','Category','{Buying Group}','{Primary Contact}','{Postal Code}','{Valid From}','{Valid To}','{Valid To}','{Lineage Key}']))) ~> AddHashId",
+				"AddHashValue, AddHashId exists(AddHashValue@HashId == AddHashId@HashId",
+				"     && AddHashValue@HashColumn == AddHashId@HashColumn,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> CheckExistUpdateValue",
+				"AddHashId derive(IsActive = 1) ~> AddActiveColumn",
+				"CheckExistUpdateValue derive(IsActive = 1) ~> AddActiveStatus",
+				"AddActiveColumn, AddActiveStatus exists(AddHashId@HashId == AddHashValue@HashId",
+				"     && AddHashId@HashColumn == AddHashValue@HashColumn,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> FilterUpdateRecords",
+				"FilterUpdateRecords derive(IsActive = 0,",
+				"          {Valid To} = currentDate()) ~> UpdateObsolete",
+				"AddActiveStatus derive({WWI Customer Key} = 'Null',",
+				"          {Lineage Key} = 0) ~> AddColumn",
+				"UpdateObsolete alterRow(updateIf(true())) ~> MaskAsUpdate",
+				"AddColumn alterRow(insertIf(true())) ~> MaskAsInsert",
+				"MaskAsInsert select(mapColumn(",
+				"          {Customer Key} = CustomerID,",
+				"          Customer = CustomerName,",
+				"          {Bill To Customer} = BillToCustomerID,",
+				"          {Category } = CustomerCategoryID,",
+				"          {Buying Group} = BuyingGroupID,",
+				"          {Primary Contact} = PrimaryContactPersonID,",
+				"          {Postal Code} = PostalCityID,",
+				"          ValidFrom,",
+				"          ValidTo,",
+				"          IsActive,",
+				"          {WWI Customer Key},",
+				"          {Lineage Key}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> DeletUnwantColumn",
+				"MaskAsUpdate select(mapColumn(",
+				"          {Customer Key},",
+				"          {WWI Customer ID},",
+				"          Customer,",
+				"          {Bill To Customer},",
+				"          Category,",
+				"          {Buying Group},",
+				"          {Primary Contact},",
+				"          {Postal Code},",
+				"          {Valid From},",
+				"          {Valid To},",
+				"          {Lineage Key},",
+				"          IsActive",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> DropUnwantColumn",
+				"DeletUnwantColumn, DropUnwantColumn union(byName: true)~> UnionODSandDW",
+				"UnionODSandDW sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> UpdateDimensionTable"
+			]
+		}
+	}
+}

@@ -19,8 +19,7 @@
 		"annotations": [],
 		"type": "SqlServer",
 		"typeProperties": {
-			"connectionString": "integrated security=False;data source=xdsqlserver01.database.windows.net;initial catalog=@{linkedService().databaseName};user id=xdadmin",
-			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDkxRENEQkJCLUY0MjMtNDM2MS04RjY5LTFDNEMzNTI0RTE1Nl9hYmU5MjZiNC1kZGU1LTRmZjQtOWZkYi02OTM4NTljMzUwZTIiDQp9"
+			"connectionString": "Integrated Security=False;Data Source=@{linkedService().serverName};Initial Catalog=@{linkedService().databaseName};User ID=@{linkedService().userName};Password=@{linkedService().userPassword}"
 		}
 	}
 }

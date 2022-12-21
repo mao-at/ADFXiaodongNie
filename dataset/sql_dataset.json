@@ -8,7 +8,10 @@
 				"databaseName": {
 					"value": "@dataset().dbName",
 					"type": "Expression"
-				}
+				},
+				"serverName": "xdsqlserver01.database.windows.net",
+				"userName": "xdadmin",
+				"userPassword": "Nxd$$30709"
 			}
 		},
 		"parameters": {

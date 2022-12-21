@@ -9,11 +9,19 @@
 						"referenceName": "sql_dataset",
 						"type": "DatasetReference"
 					},
+					"name": "ODScustomers"
+				},
+				{
 					"name": "source1"
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "AddHashID",
+					"description": "Add hash value column."
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          CustomerID as integer,",
@@ -29,7 +37,10 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> source1"
+				"     format: 'table') ~> ODScustomers",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false) ~> source1",
+				"ODScustomers derive(HashId = md5(CustomerID,CustomerName)) ~> AddHashID"
 			]
 		}
 	}

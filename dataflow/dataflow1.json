@@ -88,6 +88,9 @@
 				},
 				{
 					"name": "UpdateKeyValue"
+				},
+				{
+					"name": "derivedColumn1"
 				}
 			],
 			"scriptLines": [
@@ -186,7 +189,8 @@
 				"AddColumns derive(IsActive = 1) ~> AddActiveStatus",
 				"DWcustomer derive(IsActive = 1) ~> AddActiveColumn",
 				"JoinWithMaxSurrogateKey derive(Key = Key + MaxSurrogateKey) ~> UpdateKeyValue",
-				"UnionODSandDW sink(allowSchemaDrift: true,",
+				"UnionODSandDW derive({Buying Group} = iifNull({Buying Group}, 'Unknown')) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     deletable:false,",
 				"     insertable:true,",

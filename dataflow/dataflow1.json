@@ -153,7 +153,7 @@
 				"          {WWI Customer ID},",
 				"          Customer,",
 				"          {Bill To Customer},",
-				"          Category,",
+				"          Category = Customer,",
 				"          {Buying Group},",
 				"          {Primary Contact},",
 				"          {Postal Code},",
@@ -169,11 +169,25 @@
 				"     validateSchema: false,",
 				"     deletable:false,",
 				"     insertable:true,",
-				"     updateable:true,",
+				"     updateable:false,",
 				"     upsertable:false,",
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> UpdateDimensionTable"
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          {Customer Key},",
+				"          Customer,",
+				"          {Bill To Customer},",
+				"          {Category },",
+				"          {Buying Group},",
+				"          {Primary Contact},",
+				"          {Postal Code},",
+				"          {Valid From},",
+				"          {Valid To},",
+				"          IsActive,",
+				"          {WWI Customer ID},",
+				"          {Lineage Key}",
+				"     )) ~> UpdateDimensionTable"
 			]
 		}
 	}

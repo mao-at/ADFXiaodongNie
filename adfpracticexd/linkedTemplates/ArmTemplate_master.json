@@ -11,13 +11,9 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase1'"
 		},
-		"ODS_connectionString": {
+		"link_database_connectionString": {
 			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'ODS'"
-		},
-		"OLTP_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'OLTP'"
+			"metadata": "Secure string for 'connectionString' of 'link_database'"
 		},
 		"linkedService1_connectionString": {
 			"type": "secureString",
@@ -25,7 +21,8 @@
 		},
 		"sql_database_connectionString": {
 			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'sql_database'"
+			"metadata": "Secure string for 'connectionString' of 'sql_database'",
+			"defaultValue": "Integrated Security=False;Data Source=@{linkedService().serverName};Initial Catalog=@{linkedService().databaseName};User ID=@{linkedService().userName};Password=@{linkedService().userPassword}"
 		},
 		"containerUri": {
 			"type": "string",
@@ -57,11 +54,8 @@
 					"AzureSqlDatabase1_connectionString": {
 						"value": "[parameters('AzureSqlDatabase1_connectionString')]"
 					},
-					"ODS_connectionString": {
-						"value": "[parameters('ODS_connectionString')]"
-					},
-					"OLTP_connectionString": {
-						"value": "[parameters('OLTP_connectionString')]"
+					"link_database_connectionString": {
+						"value": "[parameters('link_database_connectionString')]"
 					},
 					"linkedService1_connectionString": {
 						"value": "[parameters('linkedService1_connectionString')]"

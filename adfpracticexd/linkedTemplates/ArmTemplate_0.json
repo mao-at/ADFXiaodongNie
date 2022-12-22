@@ -11,13 +11,9 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase1'"
 		},
-		"ODS_connectionString": {
+		"link_database_connectionString": {
 			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'ODS'"
-		},
-		"OLTP_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'OLTP'"
+			"metadata": "Secure string for 'connectionString' of 'link_database'"
 		},
 		"linkedService1_connectionString": {
 			"type": "secureString",
@@ -25,7 +21,8 @@
 		},
 		"sql_database_connectionString": {
 			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'sql_database'"
+			"metadata": "Secure string for 'connectionString' of 'sql_database'",
+			"defaultValue": "Integrated Security=False;Data Source=@{linkedService().serverName};Initial Catalog=@{linkedService().databaseName};User ID=@{linkedService().userName};Password=@{linkedService().userPassword}"
 		}
 	},
 	"variables": {
@@ -46,27 +43,19 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ODS')]",
+			"name": "[concat(parameters('factoryName'), '/link_database')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"parameters": {
+					"dbName": {
+						"type": "String"
+					}
+				},
 				"annotations": [],
-				"type": "AzureSqlDatabase",
+				"type": "SqlServer",
 				"typeProperties": {
-					"connectionString": "[parameters('ODS_connectionString')]"
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/OLTP')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "AzureSqlDatabase",
-				"typeProperties": {
-					"connectionString": "[parameters('OLTP_connectionString')]"
+					"connectionString": "[parameters('link_database_connectionString')]"
 				}
 			},
 			"dependsOn": []
@@ -92,6 +81,15 @@
 				"parameters": {
 					"databaseName": {
 						"type": "String"
+					},
+					"serverName": {
+						"type": "String"
+					},
+					"userName": {
+						"type": "String"
+					},
+					"userPassword": {
+						"type": "String"
 					}
 				},
 				"annotations": [],
@@ -114,7 +112,10 @@
 						"databaseName": {
 							"value": "@dataset().dbName",
 							"type": "Expression"
-						}
+						},
+						"serverName": "xdsqlserver01.database.windows.net",
+						"userName": "xdadmin",
+						"userPassword": "Nxd$$30709"
 					}
 				},
 				"parameters": {
@@ -147,13 +148,13 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Copy_tables')]",
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Copy_OLTP_to_ODS",
+						"name": "Copy data1",
 						"type": "Copy",
 						"dependsOn": [],
 						"policy": {
@@ -177,155 +178,117 @@
 								"tableOption": "autoCreate"
 							},
 							"enableStaging": false,
+							"parallelCopies": 1,
+							"dataIntegrationUnits": 2,
 							"translator": {
 								"type": "TabularTranslator",
 								"mappings": [
 									{
 										"source": {
-											"name": "OrderLineID",
+											"name": "CustomerID",
 											"type": "Int32",
 											"physicalType": "int"
 										},
 										"sink": {
-											"name": "OrderLineID",
-											"type": "Int32",
-											"physicalType": "Int32"
-										}
-									},
-									{
-										"source": {
-											"name": "OrderID",
+											"name": "CustomerID",
 											"type": "Int32",
 											"physicalType": "int"
-										},
-										"sink": {
-											"name": "OrderID",
-											"type": "Int32",
-											"physicalType": "Int32"
 										}
 									},
 									{
 										"source": {
-											"name": "StockItemID",
-											"type": "Int32",
-											"physicalType": "int"
-										},
-										"sink": {
-											"name": "StockItemID",
-											"type": "Int32",
-											"physicalType": "Int32"
-										}
-									},
-									{
-										"source": {
-											"name": "Description",
+											"name": "CustomerName",
 											"type": "String",
 											"physicalType": "nvarchar"
 										},
 										"sink": {
-											"name": "Description",
+											"name": "CustomerName",
 											"type": "String",
-											"physicalType": "String"
+											"physicalType": "nvarchar"
 										}
 									},
 									{
 										"source": {
-											"name": "PackageTypeID",
+											"name": "BillToCustomerID",
 											"type": "Int32",
 											"physicalType": "int"
 										},
 										"sink": {
-											"name": "PackageTypeID",
+											"name": "BillToCustomerID",
 											"type": "Int32",
-											"physicalType": "Int32"
+											"physicalType": "int"
 										}
 									},
 									{
 										"source": {
-											"name": "Quantity",
+											"name": "CustomerCategoryID",
 											"type": "Int32",
 											"physicalType": "int"
 										},
 										"sink": {
-											"name": "Quantity",
+											"name": "CustomerCategoryID",
 											"type": "Int32",
-											"physicalType": "Int32"
+											"physicalType": "int"
 										}
 									},
 									{
 										"source": {
-											"name": "UnitPrice",
-											"type": "Decimal",
-											"physicalType": "decimal",
-											"scale": 2,
-											"precision": 18
-										},
-										"sink": {
-											"name": "UnitPrice",
-											"type": "Decimal",
-											"physicalType": "Decimal"
-										}
-									},
-									{
-										"source": {
-											"name": "TaxRate",
-											"type": "Decimal",
-											"physicalType": "decimal",
-											"scale": 3,
-											"precision": 18
-										},
-										"sink": {
-											"name": "TaxRate",
-											"type": "Decimal",
-											"physicalType": "Decimal"
-										}
-									},
-									{
-										"source": {
-											"name": "PickedQuantity",
+											"name": "BuyingGroupID",
 											"type": "Int32",
 											"physicalType": "int"
 										},
 										"sink": {
-											"name": "PickedQuantity",
+											"name": "BuyingGroupID",
 											"type": "Int32",
-											"physicalType": "Int32"
+											"physicalType": "int"
 										}
 									},
 									{
 										"source": {
-											"name": "PickingCompletedWhen",
+											"name": "PrimaryContactPersonID",
+											"type": "Int32",
+											"physicalType": "int"
+										},
+										"sink": {
+											"name": "PrimaryContactPersonID",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "PostalCityID",
+											"type": "Int32",
+											"physicalType": "int"
+										},
+										"sink": {
+											"name": "PostalCityID",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "ValidFrom",
 											"type": "DateTime",
 											"physicalType": "datetime2"
 										},
 										"sink": {
-											"name": "PickingCompletedWhen",
+											"name": "ValidFrom",
 											"type": "DateTime",
-											"physicalType": "DateTime"
+											"physicalType": "datetime2"
 										}
 									},
 									{
 										"source": {
-											"name": "LastEditedBy",
-											"type": "Int32",
-											"physicalType": "int"
-										},
-										"sink": {
-											"name": "LastEditedBy",
-											"type": "Int32",
-											"physicalType": "Int32"
-										}
-									},
-									{
-										"source": {
-											"name": "LastEditedWhen",
+											"name": "ValidTo",
 											"type": "DateTime",
 											"physicalType": "datetime2"
 										},
 										"sink": {
-											"name": "LastEditedWhen",
+											"name": "ValidTo",
 											"type": "DateTime",
-											"physicalType": "DateTime"
+											"physicalType": "datetime2"
 										}
 									}
 								],
@@ -402,15 +365,14 @@
 						"type": "String"
 					}
 				},
-				"annotations": [],
-				"lastPublishTime": "2022-12-18T20:50:02Z"
+				"annotations": []
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/sql_dataset')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/SCDtype2')]",
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -422,21 +384,14 @@
 								"referenceName": "sql_dataset",
 								"type": "DatasetReference"
 							},
-							"name": "ODSOrder"
+							"name": "ODScustomer"
 						},
 						{
 							"dataset": {
 								"referenceName": "sql_dataset",
 								"type": "DatasetReference"
 							},
-							"name": "ODSOrderlines"
-						},
-						{
-							"dataset": {
-								"referenceName": "sql_dataset",
-								"type": "DatasetReference"
-							},
-							"name": "DWorder"
+							"name": "DWcustomer"
 						}
 					],
 					"sinks": [
@@ -445,276 +400,173 @@
 								"referenceName": "sql_dataset",
 								"type": "DatasetReference"
 							},
-							"name": "DeminsionTableSink"
+							"name": "UpdateDimensionTable"
 						}
 					],
 					"transformations": [
 						{
-							"name": "join1"
+							"name": "AddHashValue",
+							"description": "Add hash value column."
 						},
 						{
-							"name": "MergeOrder",
-							"description": "Autogenerated by data preview actions"
+							"name": "AddHashId",
+							"description": "Add hash value column."
+						},
+						{
+							"name": "CheckExistUpdateValue",
+							"description": "Check exist records in ODS customer table."
+						},
+						{
+							"name": "AddActiveColumn",
+							"description": "Add a column to show status."
+						},
+						{
+							"name": "AddActiveStatus",
+							"description": "Add a column to show status"
+						},
+						{
+							"name": "FilterUpdateRecords",
+							"description": "Filter all of the update records."
+						},
+						{
+							"name": "UpdateObsolete",
+							"description": "Update status of records and add end date. "
 						},
 						{
 							"name": "AddColumn",
-							"description": "Creating/updating the columns."
+							"description": "Add two columns that match DW customer table. "
 						},
 						{
-							"name": "AddComputeColumn1",
-							"description": "Creating/updating the columns."
+							"name": "MaskAsUpdate"
 						},
 						{
-							"name": "AddComputeColumn2",
-							"description": "Creating/updating the columns."
+							"name": "MaskAsInsert"
 						},
 						{
-							"name": "HashValue",
-							"description": "Add hash column."
-						},
-						{
-							"name": "Hashref",
-							"description": "Add hash column."
-						},
-						{
-							"name": "ExistCheckUpdateNew"
-						},
-						{
-							"name": "SetToActive",
-							"description": "Add status column and end date column"
-						},
-						{
-							"name": "ExistCheckObsolete"
-						},
-						{
-							"name": "UpdateObsolete"
-						},
-						{
-							"name": "MakeAsUpdate"
-						},
-						{
-							"name": "SetActiveStatue"
+							"name": "DeletUnwantColumn",
+							"description": "Delete hash columns."
 						},
 						{
 							"name": "DropUnwantColumn",
-							"description": "Drop HashId column. "
+							"description": "Delete hash columns"
 						},
 						{
-							"name": "DropUnwantHashColumn",
-							"description": "Drop hash id column"
+							"name": "UnionODSandDW"
 						},
 						{
-							"name": "Union"
-						},
-						{
-							"name": "MarkAsInsert"
+							"name": "FilterNullValue"
 						}
 					],
 					"scriptLines": [
-						"parameters{",
-						"     order_key as string ('Order Key'),",
-						"     customer_key as string ('Customer Key')",
-						"}",
 						"source(output(",
-						"          OrderID as integer,",
 						"          CustomerID as integer,",
-						"          SalespersonPersonID as integer,",
-						"          PickedByPersonID as integer,",
-						"          ContactPersonID as integer,",
-						"          BackorderOrderID as integer,",
-						"          OrderDate as date,",
-						"          ExpectedDeliveryDate as date,",
-						"          CustomerPurchaseOrderNumber as string,",
-						"          IsUndersupplyBackordered as boolean,",
-						"          Comments as string,",
-						"          DeliveryInstructions as string,",
-						"          InternalComments as string,",
-						"          PickingCompletedWhen as timestamp,",
-						"          LastEditedBy as integer,",
-						"          LastEditedWhen as timestamp",
+						"          CustomerName as string,",
+						"          BillToCustomerID as string,",
+						"          CustomerCategoryID as string,",
+						"          BuyingGroupID as string,",
+						"          PrimaryContactPersonID as string,",
+						"          PostalCityID as string,",
+						"          ValidFrom as date,",
+						"          ValidTo as date",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     format: 'table') ~> ODSOrder",
+						"     format: 'table') ~> ODScustomer",
 						"source(output(",
-						"          OrderLineID as integer,",
-						"          OrderID as integer,",
-						"          StockItemID as integer,",
-						"          Description as string,",
-						"          PackageTypeID as integer,",
-						"          Quantity as integer,",
-						"          UnitPrice as decimal(18,2),",
-						"          TaxRate as decimal(18,3),",
-						"          PickedQuantity as integer,",
-						"          PickingCompletedWhen as timestamp,",
-						"          LastEditedBy as integer,",
-						"          LastEditedWhen as timestamp",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     format: 'table') ~> ODSOrderlines",
-						"source(output(",
-						"          {Order Key} as long,",
-						"          {City Key} as integer,",
 						"          {Customer Key} as integer,",
-						"          {Stock Item Key} as integer,",
-						"          {Order Date Key} as date,",
-						"          {Picked Date Key} as date,",
-						"          {Salesperson Key} as integer,",
-						"          {Picker Key} as integer,",
-						"          {WWI Order ID} as integer,",
-						"          {WWI Backorder ID} as integer,",
-						"          Description as string,",
-						"          Package as string,",
-						"          Quantity as integer,",
-						"          {Unit Price} as decimal(18,2),",
-						"          {Tax Rate} as decimal(18,3),",
-						"          {Total Excluding Tax} as decimal(18,2),",
-						"          {Tax Amount} as decimal(18,2),",
-						"          {Total Including Tax} as decimal(18,2),",
+						"          {WWI Customer ID} as integer,",
+						"          Customer as string,",
+						"          {Bill To Customer} as string,",
+						"          Category as string,",
+						"          {Buying Group} as string,",
+						"          {Primary Contact} as string,",
+						"          {Postal Code} as string,",
+						"          {Valid From} as date,",
+						"          {Valid To} as date,",
 						"          {Lineage Key} as integer",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     format: 'table') ~> DWorder",
-						"ODSOrder, ODSOrderlines join(ODSOrder@OrderID == ODSOrderlines@OrderID,",
-						"     joinType:'inner',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     broadcast: 'auto')~> join1",
-						"join1 select(mapColumn(",
-						"          OrderID = ODSOrder@OrderID,",
-						"          CustomerID,",
-						"          SalespersonPersonID,",
-						"          PickedByPersonID,",
-						"          BackorderOrderID,",
-						"          OrderDate,",
-						"          PickingCompletedWhen = ExpectedDeliveryDate,",
-						"          OrderLineID,",
-						"          StockItemID,",
-						"          Description,",
-						"          Quantity,",
-						"          UnitPrice,",
-						"          TaxRate",
+						"     format: 'table') ~> DWcustomer",
+						"FilterNullValue derive(HashId = md5(CustomerID),",
+						"          HashColumn = md5(byNames(['CustomerName','BillToCustomerID','CustomerCategoryID','BuyingGroupID','PrimaryContactPersonID','PostalCityID','ValidFrom','ValidTo']))) ~> AddHashValue",
+						"DWcustomer derive(HashId = md5({Customer Key}),",
+						"          HashColumn = md5(byNames(['{WWI Customer ID}','Customer','{Bill To Customer}','Category','{Buying Group}','{Primary Contact}','{Postal Code}','{Valid From}','{Valid To}','{Valid To}','{Lineage Key}']))) ~> AddHashId",
+						"AddHashValue, AddHashId exists(AddHashValue@HashId == AddHashId@HashId",
+						"     && AddHashValue@HashColumn == AddHashId@HashColumn,",
+						"     negate:true,",
+						"     broadcast: 'auto')~> CheckExistUpdateValue",
+						"AddHashId derive(IsActive = 1) ~> AddActiveColumn",
+						"CheckExistUpdateValue derive(IsActive = 1) ~> AddActiveStatus",
+						"AddActiveColumn, AddActiveStatus exists(AddHashId@HashId == AddHashValue@HashId",
+						"     && AddHashId@HashColumn == AddHashValue@HashColumn,",
+						"     negate:false,",
+						"     broadcast: 'auto')~> FilterUpdateRecords",
+						"FilterUpdateRecords derive(IsActive = 0,",
+						"          {Valid To} = currentDate()) ~> UpdateObsolete",
+						"AddActiveStatus derive({WWI Customer Key} = 0,",
+						"          {Lineage Key} = 0) ~> AddColumn",
+						"UpdateObsolete alterRow(updateIf(true())) ~> MaskAsUpdate",
+						"AddColumn alterRow(insertIf(true())) ~> MaskAsInsert",
+						"MaskAsInsert select(mapColumn(",
+						"          {Customer Key} = CustomerID,",
+						"          Customer = CustomerName,",
+						"          {Bill To Customer} = BillToCustomerID,",
+						"          {Category } = CustomerCategoryID,",
+						"          {Buying Group} = BuyingGroupID,",
+						"          {Primary Contact} = PrimaryContactPersonID,",
+						"          {Postal Code} = PostalCityID,",
+						"          {Valid From} = ValidFrom,",
+						"          {Valid To} = ValidTo,",
+						"          IsActive,",
+						"          {WWI Customer ID} = {WWI Customer Key},",
+						"          {Lineage Key}",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> MergeOrder",
-						"MergeOrder derive({City Key} = 00000,",
-						"          {Lineage Key} = 9,",
-						"          Package = 'Null',",
-						"          {Total Excluding Tax} = round(multiply(Quantity, TaxRate),2)) ~> AddColumn",
-						"AddColumn derive({Tax Amount} = round(multiply({Total Excluding Tax}, TaxRate),2)) ~> AddComputeColumn1",
-						"AddComputeColumn1 derive({Total Including Tax} = round(add({Total Excluding Tax}, {Tax Amount}),2)) ~> AddComputeColumn2",
-						"AddComputeColumn2 derive(inputHash = md5(OrderID,CustomerID)) ~> HashValue",
-						"SetActiveStatue derive(HashId = md5({Order Key},{Customer Key})) ~> Hashref",
-						"HashValue, Hashref exists(inputHash == HashId,",
-						"     negate:true,",
-						"     broadcast: 'auto')~> ExistCheckUpdateNew",
-						"ExistCheckUpdateNew derive(IsActive = 1,",
-						"          startDate = currentDate(),",
-						"          endDate = toDate('9999-12-31')) ~> SetToActive",
-						"Hashref, SetToActive exists({Order Key} == OrderID",
-						"     && {Customer Key} == CustomerID,",
-						"     negate:false,",
-						"     broadcast: 'auto')~> ExistCheckObsolete",
-						"ExistCheckObsolete derive(IsActive = 0,",
-						"          endDate = currentDate()) ~> UpdateObsolete",
-						"UpdateObsolete alterRow(updateIf(true())) ~> MakeAsUpdate",
-						"DWorder derive(IsActive = 1,",
-						"          startDate = toDate('0000-12-31'),",
-						"          endDate = toDate('9999-12-31')) ~> SetActiveStatue",
-						"MakeAsUpdate select(mapColumn(",
-						"          {Order Key},",
-						"          {City Key},",
+						"     skipDuplicateMapOutputs: true) ~> DeletUnwantColumn",
+						"MaskAsUpdate select(mapColumn(",
 						"          {Customer Key},",
-						"          {Stock Item Key},",
-						"          {Order Date Key},",
-						"          {Picked Date Key},",
-						"          {Salesperson Key},",
-						"          {Picker Key},",
-						"          {WWI Order ID},",
-						"          {WWI Backorder ID},",
-						"          Description,",
-						"          Package,",
-						"          Quantity,",
-						"          {Unit Price},",
-						"          {Tax Rate},",
-						"          {Total Excluding Tax},",
-						"          {Tax Amount},",
-						"          {Total Including Tax},",
+						"          {WWI Customer ID},",
+						"          Customer,",
+						"          {Bill To Customer},",
+						"          Category = Customer,",
+						"          {Buying Group},",
+						"          {Primary Contact},",
+						"          {Postal Code},",
+						"          {Valid From},",
+						"          {Valid To},",
 						"          {Lineage Key},",
-						"          IsActive,",
-						"          startDate,",
-						"          endDate",
+						"          IsActive",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> DropUnwantColumn",
-						"SetToActive select(mapColumn(",
-						"          {Order Key} = OrderID,",
-						"          {Customer Key} = CustomerID,",
-						"          {Salesperson Key} = SalespersonPersonID,",
-						"          {Picker Key} = PickedByPersonID,",
-						"          {WWI Backorder ID} = BackorderOrderID,",
-						"          {Order Date Key} = OrderDate,",
-						"          {Picked Date Key} = PickingCompletedWhen,",
-						"          {WWI Order ID} = OrderLineID,",
-						"          {Stock Item Key} = StockItemID,",
-						"          Description,",
-						"          Quantity,",
-						"          {Unit Price} = UnitPrice,",
-						"          {Tax Rate} = TaxRate,",
-						"          {City Key},",
-						"          {Lineage Key},",
-						"          Package,",
-						"          {Total Excluding Tax},",
-						"          {Tax Amount},",
-						"          {Total Including Tax},",
-						"          IsActive,",
-						"          startDate,",
-						"          endDate",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> DropUnwantHashColumn",
-						"MarkAsInsert, DropUnwantColumn union(byName: true)~> Union",
-						"DropUnwantHashColumn alterRow(insertIf(true())) ~> MarkAsInsert",
-						"Union sink(allowSchemaDrift: true,",
+						"DeletUnwantColumn, DropUnwantColumn union(byName: true)~> UnionODSandDW",
+						"ODScustomer filter(isNull(CustomerCategoryID)) ~> FilterNullValue",
+						"UnionODSandDW sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     deletable:false,",
 						"     insertable:true,",
-						"     updateable:true,",
+						"     updateable:false,",
 						"     upsertable:false,",
-						"     keys:[($order_key),($customer_key)],",
-						"     skipKeyWrites:true,",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     mapColumn(",
-						"          {Order Key},",
 						"          {Customer Key},",
-						"          {Salesperson Key},",
-						"          {Picker Key},",
-						"          {WWI Backorder ID},",
-						"          {Order Date Key},",
-						"          {Picked Date Key},",
-						"          {WWI Order ID},",
-						"          {Stock Item Key},",
-						"          Description,",
-						"          Quantity,",
-						"          {Unit Price},",
-						"          {Tax Rate},",
-						"          {City Key},",
-						"          {Lineage Key},",
-						"          Package,",
-						"          {Total Excluding Tax},",
-						"          {Tax Amount},",
-						"          {Total Including Tax},",
+						"          Customer,",
+						"          {Bill To Customer},",
+						"          {Category },",
+						"          {Buying Group},",
+						"          {Primary Contact},",
+						"          {Postal Code},",
+						"          {Valid From},",
+						"          {Valid To},",
 						"          IsActive,",
-						"          startDate,",
-						"          endDate",
-						"     )) ~> DeminsionTableSink"
+						"          {WWI Customer ID},",
+						"          {Lineage Key}",
+						"     )) ~> UpdateDimensionTable"
 					]
 				}
 			},
@@ -723,13 +575,13 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/SDCtype2')]",
+			"name": "[concat(parameters('factoryName'), '/pipeline2')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "SCDtype2",
+						"name": "dataflow1",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
@@ -742,37 +594,23 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "SCDtype2",
+								"referenceName": "dataflow1",
 								"type": "DataFlowReference",
-								"parameters": {
-									"order_key": {
-										"value": "'@{pipeline().parameters.orderKey}'",
-										"type": "Expression"
-									},
-									"customer_key": {
-										"value": "'@{pipeline().parameters.customerKey}'",
-										"type": "Expression"
-									}
-								},
+								"parameters": {},
 								"datasetParameters": {
-									"ODSOrder": {
+									"ODScustomer": {
 										"schema": "sales",
-										"tableName": "orders",
+										"tableName": "customers",
 										"dbName": "ODS_database"
 									},
-									"ODSOrderlines": {
-										"schema": "sales",
-										"tableName": "orderlines",
-										"dbName": "ODS_database"
-									},
-									"DWorder": {
-										"schema": "fact",
-										"tableName": "order",
+									"DWcustomer": {
+										"schema": "dimension",
+										"tableName": "customer",
 										"dbName": "WideWorldImportersDW-Standard"
 									},
-									"DeminsionTableSink": {
-										"schema": "fact",
-										"tableName": "order",
+									"UpdateDimensionTable": {
+										"schema": "dimension",
+										"tableName": "customer",
 										"dbName": "WideWorldImportersDW-Standard"
 									}
 								}
@@ -790,18 +628,10 @@
 					"elapsedTimeMetric": {},
 					"cancelAfter": {}
 				},
-				"parameters": {
-					"orderKey": {
-						"type": "String"
-					},
-					"customerKey": {
-						"type": "String"
-					}
-				},
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/SCDtype2')]"
+				"[concat(variables('factoryId'), '/dataflows/dataflow1')]"
 			]
 		}
 	]

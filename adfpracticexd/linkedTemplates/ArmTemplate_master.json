@@ -11,14 +11,6 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase1'"
 		},
-		"link_database_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'link_database'"
-		},
-		"linkedService1_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'linkedService1'"
-		},
 		"linkedService2_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'linkedService2'"
@@ -61,12 +53,6 @@
 					},
 					"AzureSqlDatabase1_connectionString": {
 						"value": "[parameters('AzureSqlDatabase1_connectionString')]"
-					},
-					"link_database_connectionString": {
-						"value": "[parameters('link_database_connectionString')]"
-					},
-					"linkedService1_connectionString": {
-						"value": "[parameters('linkedService1_connectionString')]"
 					},
 					"linkedService2_connectionString": {
 						"value": "[parameters('linkedService2_connectionString')]"

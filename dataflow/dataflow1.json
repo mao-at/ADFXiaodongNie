@@ -42,24 +42,12 @@
 					"description": "Check exist records in ODS customer table."
 				},
 				{
-					"name": "AddActiveColumn",
-					"description": "Add a column to show status."
-				},
-				{
-					"name": "AddActiveStatus",
-					"description": "Add a column to show status"
-				},
-				{
 					"name": "FilterUpdateRecords",
 					"description": "Filter all of the update records."
 				},
 				{
 					"name": "UpdateObsolete",
 					"description": "Update status of records and add end date. "
-				},
-				{
-					"name": "AddColumn",
-					"description": "Add two columns that match DW customer table. "
 				},
 				{
 					"name": "MaskAsUpdate"
@@ -79,16 +67,27 @@
 					"name": "UnionODSandDW"
 				},
 				{
-					"name": "FilterNullValue"
+					"name": "AddKey"
 				},
 				{
-					"name": "AddKey"
+					"name": "JoinWithMaxSurrogateKey"
 				},
 				{
 					"name": "GetMaxSurrogateKey"
 				},
 				{
-					"name": "JoinWithMaxSurrogateKey"
+					"name": "AddColumns",
+					"description": "Add two columns that match DW customer table. "
+				},
+				{
+					"name": "AddActiveStatus"
+				},
+				{
+					"name": "AddActiveColumn",
+					"description": "Add a column to show status."
+				},
+				{
+					"name": "UpdateKeyValue"
 				}
 			],
 			"scriptLines": [
@@ -124,28 +123,24 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> DWcustomer",
-				"FilterNullValue derive(HashId = md5(CustomerID),",
+				"AddActiveStatus derive(HashId = md5(CustomerID),",
 				"          HashColumn = md5(byNames(['CustomerName','BillToCustomerID','CustomerCategoryID','BuyingGroupID','PrimaryContactPersonID','PostalCityID','ValidFrom','ValidTo']))) ~> AddHashValue",
-				"DWcustomer derive(HashId = md5({Customer Key}),",
+				"AddActiveColumn derive(HashId = md5({Customer Key}),",
 				"          HashColumn = md5(byNames(['{WWI Customer ID}','Customer','{Bill To Customer}','Category','{Buying Group}','{Primary Contact}','{Postal Code}','{Valid From}','{Valid To}','{Valid To}','{Lineage Key}']))) ~> AddHashId",
 				"AddHashValue, AddHashId exists(AddHashValue@HashId == AddHashId@HashId",
 				"     && AddHashValue@HashColumn == AddHashId@HashColumn,",
 				"     negate:true,",
 				"     broadcast: 'auto')~> CheckExistUpdateValue",
-				"AddHashId derive(IsActive = 1) ~> AddActiveColumn",
-				"JoinWithMaxSurrogateKey derive(IsActive = 1) ~> AddActiveStatus",
-				"AddActiveColumn, AddActiveStatus exists(AddHashId@HashId == AddHashValue@HashId",
+				"AddHashId, CheckExistUpdateValue exists(AddHashId@HashId == AddHashValue@HashId",
 				"     && AddHashId@HashColumn == AddHashValue@HashColumn,",
 				"     negate:false,",
 				"     broadcast: 'auto')~> FilterUpdateRecords",
 				"FilterUpdateRecords derive(IsActive = 0,",
 				"          {Valid To} = currentDate()) ~> UpdateObsolete",
-				"AddActiveStatus derive({WWI Customer Key} = 0,",
-				"          {Lineage Key} = 0) ~> AddColumn",
 				"UpdateObsolete alterRow(updateIf(true())) ~> MaskAsUpdate",
-				"AddColumn alterRow(insertIf(true())) ~> MaskAsInsert",
+				"UpdateKeyValue alterRow(insertIf(true())) ~> MaskAsInsert",
 				"MaskAsInsert select(mapColumn(",
-				"          {Customer Key} = ODScustomer@CustomerID,",
+				"          {Customer Key} = CustomerID,",
 				"          Customer = CustomerName,",
 				"          {Bill To Customer} = BillToCustomerID,",
 				"          {Category } = CustomerCategoryID,",
@@ -165,7 +160,7 @@
 				"          {WWI Customer ID},",
 				"          Customer,",
 				"          {Bill To Customer},",
-				"          Category = Customer,",
+				"          Category,",
 				"          {Buying Group},",
 				"          {Primary Contact},",
 				"          {Postal Code},",
@@ -177,16 +172,20 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> DropUnwantColumn",
 				"DeletUnwantColumn, DropUnwantColumn union(byName: true)~> UnionODSandDW",
-				"ODScustomer filter(isNull(CustomerCategoryID)) ~> FilterNullValue",
 				"CheckExistUpdateValue keyGenerate(output(Key as long),",
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> AddKey",
-				"AddHashId aggregate(MaxSurrogateKey = max(toInteger(byName('Key')))) ~> GetMaxSurrogateKey",
 				"AddKey, GetMaxSurrogateKey join(Key == MaxSurrogateKey || true(),",
 				"     joinType:'cross',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinWithMaxSurrogateKey",
+				"AddHashId aggregate(MaxSurrogateKey = max(toInteger(byName('Key')))) ~> GetMaxSurrogateKey",
+				"ODScustomer derive({WWI Customer Key} = CustomerID,",
+				"          {Lineage Key} = 0) ~> AddColumns",
+				"AddColumns derive(IsActive = 1) ~> AddActiveStatus",
+				"DWcustomer derive(IsActive = 1) ~> AddActiveColumn",
+				"JoinWithMaxSurrogateKey derive(Key = Key + MaxSurrogateKey) ~> UpdateKeyValue",
 				"UnionODSandDW sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     deletable:false,",

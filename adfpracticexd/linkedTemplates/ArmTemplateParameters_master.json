@@ -14,6 +14,12 @@
 		"linkedService1_connectionString": {
 			"value": ""
 		},
+		"linkedService2_connectionString": {
+			"value": ""
+		},
+		"linkedService3_connectionString": {
+			"value": ""
+		},
 		"sql_database_connectionString": {
 			"value": "Integrated Security=False;Data Source=@{linkedService().serverName};Initial Catalog=@{linkedService().databaseName};User ID=@{linkedService().userName};Password=@{linkedService().userPassword}"
 		},

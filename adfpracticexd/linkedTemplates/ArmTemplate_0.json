@@ -19,6 +19,14 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'linkedService1'"
 		},
+		"linkedService2_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'linkedService2'"
+		},
+		"linkedService3_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'linkedService3'"
+		},
 		"sql_database_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'sql_database'",
@@ -74,6 +82,32 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/linkedService2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('linkedService2_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/linkedService3')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('linkedService3_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/sql_database')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -99,6 +133,142 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GenericDataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedService2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Folder": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "SCD"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": {
+							"value": "@dataset().Folder",
+							"type": "Expression"
+						},
+						"container": "demo"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/linkedService2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GenericDataset1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "linkedService3",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Folder": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "SCD"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": {
+							"value": "@dataset().Folder",
+							"type": "Expression"
+						},
+						"container": "demo"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/linkedService3')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SqlDimension')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": {
+						"value": "@dataset().Table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SqlDimension1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"Table": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": {
+						"value": "@dataset().Table",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/sql_dataset')]",
@@ -372,6 +542,96 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/GenericSCDType2')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "GenericSCD"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "GenericDataset1",
+								"type": "DatasetReference"
+							},
+							"name": "GenericInput"
+						},
+						{
+							"dataset": {
+								"referenceName": "SqlDimension1",
+								"type": "DatasetReference"
+							},
+							"name": "ExistingDimensionTable"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "SqlDimension1",
+								"type": "DatasetReference"
+							},
+							"name": "DimensionTableSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "NewAndUpdatedRows"
+						},
+						{
+							"name": "AddHashInput"
+						},
+						{
+							"name": "AddHashExisting"
+						},
+						{
+							"name": "GetMaxSurrogateKey"
+						},
+						{
+							"name": "AddKey"
+						},
+						{
+							"name": "JoinWithMaxSurrogateKey"
+						},
+						{
+							"name": "AddDimensionColumns"
+						},
+						{
+							"name": "FilterForUpdatedValues"
+						},
+						{
+							"name": "UpdateObsolete"
+						},
+						{
+							"name": "DropUnwantedColsInput"
+						},
+						{
+							"name": "UnionAllData"
+						},
+						{
+							"name": "MarkAsUpdate"
+						},
+						{
+							"name": "DropUnwantedColumns"
+						},
+						{
+							"name": "MarkAsInsert"
+						},
+						{
+							"name": "FilterForActive"
+						}
+					],
+					"script": "parameters{\n\tPrimaryKey as string ('ID'),\n\tColumns as string ('Player,Team,Salary')\n}\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> GenericInput\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> ExistingDimensionTable\nAddHashInput, AddHashExisting exists(AddHashInput@id_hash == AddHashExisting@id_hash\n\t&& AddHashInput@columns_hash == AddHashExisting@columns_hash,\n\tnegate:true,\n\tbroadcast: 'auto')~> NewAndUpdatedRows\nGenericInput derive(id_hash = md5(byName($PrimaryKey)),\n\t\tcolumns_hash = md5(byNames(split($Columns,',')))) ~> AddHashInput\nFilterForActive derive(id_hash = md5(byNames(split($PrimaryKey,','))),\n\t\tcolumns_hash = md5(byNames(split($Columns,',')))) ~> AddHashExisting\nAddHashExisting aggregate(MaxSurrogateKey = max(toInteger(byName('Key')))) ~> GetMaxSurrogateKey\nNewAndUpdatedRows keyGenerate(output(Key as long),\n\tstartAt: 1L,\n\tstepValue: 1L) ~> AddKey\nAddKey, GetMaxSurrogateKey join(Key == MaxSurrogateKey || true(),\n\tjoinType:'cross',\n\tmatchType:'exact',\n\tignoreSpaces: false,\n\tbroadcast: 'right')~> JoinWithMaxSurrogateKey\nJoinWithMaxSurrogateKey derive(Key = Key + MaxSurrogateKey,\n\t\tActive = 1,\n\t\tActiveStartTime = currentUTC(),\n\t\tActiveEndTime = toTimestamp(toString(null()))) ~> AddDimensionColumns\nAddHashExisting, NewAndUpdatedRows exists(AddHashExisting@id_hash == AddHashInput@id_hash,\n\tnegate:false,\n\tbroadcast: 'auto')~> FilterForUpdatedValues\nFilterForUpdatedValues derive(Active = 0,\n\t\tActiveEndTime = currentUTC()) ~> UpdateObsolete\nAddDimensionColumns select(mapColumn(\n\t\teach(match(!in(['id_hash','columns_hash','MaxSurrogateKey'],name)))\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> DropUnwantedColsInput\nMarkAsInsert, DropUnwantedColumns union(byName: true)~> UnionAllData\nUpdateObsolete alterRow(updateIf(true())) ~> MarkAsUpdate\nMarkAsUpdate select(mapColumn(\n\t\teach(match(!in(['id_hash','columns_hash','MaxSurrogateKey'],name)))\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> DropUnwantedColumns\nDropUnwantedColsInput alterRow(insertIf(true())) ~> MarkAsInsert\nExistingDimensionTable filter(toInteger(byName('Active')) == 1) ~> FilterForActive\nUnionAllData sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:true,\n\tupsertable:false,\n\tkeys:[($PrimaryKey)],\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> DimensionTableSink"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/GenericDataset1')]",
+				"[concat(variables('factoryId'), '/datasets/SqlDimension1')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -400,7 +660,7 @@
 								"referenceName": "sql_dataset",
 								"type": "DatasetReference"
 							},
-							"name": "UpdateDimensionTable"
+							"name": "UpdateDimensionCustomer"
 						}
 					],
 					"transformations": [
@@ -417,24 +677,12 @@
 							"description": "Check exist records in ODS customer table."
 						},
 						{
-							"name": "AddActiveColumn",
-							"description": "Add a column to show status."
-						},
-						{
-							"name": "AddActiveStatus",
-							"description": "Add a column to show status"
-						},
-						{
 							"name": "FilterUpdateRecords",
 							"description": "Filter all of the update records."
 						},
 						{
 							"name": "UpdateObsolete",
 							"description": "Update status of records and add end date. "
-						},
-						{
-							"name": "AddColumn",
-							"description": "Add two columns that match DW customer table. "
 						},
 						{
 							"name": "MaskAsUpdate"
@@ -451,10 +699,33 @@
 							"description": "Delete hash columns"
 						},
 						{
-							"name": "UnionODSandDW"
+							"name": "AddKey"
 						},
 						{
-							"name": "FilterNullValue"
+							"name": "JoinWithMaxSurrogateKey"
+						},
+						{
+							"name": "GetMaxSurrogateKey"
+						},
+						{
+							"name": "AddColumns",
+							"description": "Add two columns that match DW customer table. "
+						},
+						{
+							"name": "AddActiveStatus"
+						},
+						{
+							"name": "AddActiveColumn",
+							"description": "Add a column to show status."
+						},
+						{
+							"name": "UpdateKeyValue"
+						},
+						{
+							"name": "union1"
+						},
+						{
+							"name": "ReplaceNullValue"
 						}
 					],
 					"scriptLines": [
@@ -490,31 +761,27 @@
 						"     validateSchema: false,",
 						"     isolationLevel: 'READ_UNCOMMITTED',",
 						"     format: 'table') ~> DWcustomer",
-						"FilterNullValue derive(HashId = md5(CustomerID),",
+						"AddActiveStatus derive(HashId = md5(CustomerID),",
 						"          HashColumn = md5(byNames(['CustomerName','BillToCustomerID','CustomerCategoryID','BuyingGroupID','PrimaryContactPersonID','PostalCityID','ValidFrom','ValidTo']))) ~> AddHashValue",
-						"DWcustomer derive(HashId = md5({Customer Key}),",
+						"AddActiveColumn derive(HashId = md5({Customer Key}),",
 						"          HashColumn = md5(byNames(['{WWI Customer ID}','Customer','{Bill To Customer}','Category','{Buying Group}','{Primary Contact}','{Postal Code}','{Valid From}','{Valid To}','{Valid To}','{Lineage Key}']))) ~> AddHashId",
 						"AddHashValue, AddHashId exists(AddHashValue@HashId == AddHashId@HashId",
 						"     && AddHashValue@HashColumn == AddHashId@HashColumn,",
 						"     negate:true,",
 						"     broadcast: 'auto')~> CheckExistUpdateValue",
-						"AddHashId derive(IsActive = 1) ~> AddActiveColumn",
-						"CheckExistUpdateValue derive(IsActive = 1) ~> AddActiveStatus",
-						"AddActiveColumn, AddActiveStatus exists(AddHashId@HashId == AddHashValue@HashId",
+						"AddHashId, CheckExistUpdateValue exists(AddHashId@HashId == AddHashValue@HashId",
 						"     && AddHashId@HashColumn == AddHashValue@HashColumn,",
 						"     negate:false,",
 						"     broadcast: 'auto')~> FilterUpdateRecords",
 						"FilterUpdateRecords derive(IsActive = 0,",
 						"          {Valid To} = currentDate()) ~> UpdateObsolete",
-						"AddActiveStatus derive({WWI Customer Key} = 0,",
-						"          {Lineage Key} = 0) ~> AddColumn",
 						"UpdateObsolete alterRow(updateIf(true())) ~> MaskAsUpdate",
-						"AddColumn alterRow(insertIf(true())) ~> MaskAsInsert",
+						"UpdateKeyValue alterRow(insertIf(true())) ~> MaskAsInsert",
 						"MaskAsInsert select(mapColumn(",
 						"          {Customer Key} = CustomerID,",
 						"          Customer = CustomerName,",
 						"          {Bill To Customer} = BillToCustomerID,",
-						"          {Category } = CustomerCategoryID,",
+						"          Category = CustomerCategoryID,",
 						"          {Buying Group} = BuyingGroupID,",
 						"          {Primary Contact} = PrimaryContactPersonID,",
 						"          {Postal Code} = PostalCityID,",
@@ -531,7 +798,7 @@
 						"          {WWI Customer ID},",
 						"          Customer,",
 						"          {Bill To Customer},",
-						"          Category = Customer,",
+						"          Category,",
 						"          {Buying Group},",
 						"          {Primary Contact},",
 						"          {Postal Code},",
@@ -542,9 +809,24 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> DropUnwantColumn",
-						"DeletUnwantColumn, DropUnwantColumn union(byName: true)~> UnionODSandDW",
-						"ODScustomer filter(isNull(CustomerCategoryID)) ~> FilterNullValue",
-						"UnionODSandDW sink(allowSchemaDrift: true,",
+						"CheckExistUpdateValue keyGenerate(output(Key as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> AddKey",
+						"AddKey, GetMaxSurrogateKey join(Key == MaxSurrogateKey || true(),",
+						"     joinType:'cross',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> JoinWithMaxSurrogateKey",
+						"AddHashId aggregate(MaxSurrogateKey = max(toInteger(byName('Key')))) ~> GetMaxSurrogateKey",
+						"ODScustomer derive({WWI Customer Key} = CustomerID,",
+						"          {Lineage Key} = 0) ~> AddColumns",
+						"AddColumns derive(IsActive = 1) ~> AddActiveStatus",
+						"DWcustomer derive(IsActive = 1) ~> AddActiveColumn",
+						"JoinWithMaxSurrogateKey derive(Key = Key + MaxSurrogateKey) ~> UpdateKeyValue",
+						"DeletUnwantColumn, DropUnwantColumn union(byName: true)~> union1",
+						"union1 derive({Buying Group} = iifNull({Buying Group}, 'Unknown'),",
+						"          Category = iifNull(Category, 'Unknown')) ~> ReplaceNullValue",
+						"ReplaceNullValue sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     deletable:false,",
 						"     insertable:true,",
@@ -552,26 +834,102 @@
 						"     upsertable:false,",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     mapColumn(",
-						"          {Customer Key},",
-						"          Customer,",
-						"          {Bill To Customer},",
-						"          {Category },",
-						"          {Buying Group},",
-						"          {Primary Contact},",
-						"          {Postal Code},",
-						"          {Valid From},",
-						"          {Valid To},",
-						"          IsActive,",
-						"          {WWI Customer ID},",
-						"          {Lineage Key}",
-						"     )) ~> UpdateDimensionTable"
+						"     skipDuplicateMapOutputs: true) ~> UpdateDimensionCustomer"
 					]
 				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/sql_dataset')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GenericSCDType2')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Using byNames to fully parameterize a Slowly Change Dimension Type 2 patter",
+				"activities": [
+					{
+						"name": "GenericSCDType2",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "GenericSCDType2",
+								"type": "DataFlowReference",
+								"parameters": {
+									"PrimaryKey": {
+										"value": "'@{pipeline().parameters.PrimaryKey}'",
+										"type": "Expression"
+									},
+									"Columns": {
+										"value": "'@{pipeline().parameters.ColumnNames}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"GenericInput": {
+										"Folder": {
+											"value": "@pipeline().parameters.IncomingDimensionFolder",
+											"type": "Expression"
+										}
+									},
+									"ExistingDimensionTable": {
+										"Table": {
+											"value": "@pipeline().parameters.DimensionTable",
+											"type": "Expression"
+										}
+									},
+									"DimensionTableSink": {
+										"Table": {
+											"value": "@pipeline().parameters.DimensionTable",
+											"type": "Expression"
+										}
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"IncomingDimensionFolder": {
+						"type": "string"
+					},
+					"DimensionTable": {
+						"type": "string"
+					},
+					"PrimaryKey": {
+						"type": "string"
+					},
+					"ColumnNames": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "GenericSCD"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/GenericSCDType2')]"
 			]
 		},
 		{
@@ -608,7 +966,7 @@
 										"tableName": "customer",
 										"dbName": "WideWorldImportersDW-Standard"
 									},
-									"UpdateDimensionTable": {
+									"UpdateDimensionCustomer": {
 										"schema": "dimension",
 										"tableName": "customer",
 										"dbName": "WideWorldImportersDW-Standard"

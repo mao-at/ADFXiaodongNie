@@ -25,7 +25,7 @@
 						"referenceName": "sql_dataset",
 						"type": "DatasetReference"
 					},
-					"name": "UpdateDimensionTable"
+					"name": "UpdateDimensionCustomer"
 				}
 			],
 			"transformations": [
@@ -64,9 +64,6 @@
 					"description": "Delete hash columns"
 				},
 				{
-					"name": "UnionODSandDW"
-				},
-				{
 					"name": "AddKey"
 				},
 				{
@@ -90,7 +87,10 @@
 					"name": "UpdateKeyValue"
 				},
 				{
-					"name": "derivedColumn1"
+					"name": "union1"
+				},
+				{
+					"name": "ReplaceNullValue"
 				}
 			],
 			"scriptLines": [
@@ -146,7 +146,7 @@
 				"          {Customer Key} = CustomerID,",
 				"          Customer = CustomerName,",
 				"          {Bill To Customer} = BillToCustomerID,",
-				"          {Category } = CustomerCategoryID,",
+				"          Category = CustomerCategoryID,",
 				"          {Buying Group} = BuyingGroupID,",
 				"          {Primary Contact} = PrimaryContactPersonID,",
 				"          {Postal Code} = PostalCityID,",
@@ -174,7 +174,6 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> DropUnwantColumn",
-				"DeletUnwantColumn, DropUnwantColumn union(byName: true)~> UnionODSandDW",
 				"CheckExistUpdateValue keyGenerate(output(Key as long),",
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> AddKey",
@@ -189,8 +188,10 @@
 				"AddColumns derive(IsActive = 1) ~> AddActiveStatus",
 				"DWcustomer derive(IsActive = 1) ~> AddActiveColumn",
 				"JoinWithMaxSurrogateKey derive(Key = Key + MaxSurrogateKey) ~> UpdateKeyValue",
-				"UnionODSandDW derive({Buying Group} = iifNull({Buying Group}, 'Unknown')) ~> derivedColumn1",
-				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"DeletUnwantColumn, DropUnwantColumn union(byName: true)~> union1",
+				"union1 derive({Buying Group} = iifNull({Buying Group}, 'Unknown'),",
+				"          Category = iifNull(Category, 'Unknown')) ~> ReplaceNullValue",
+				"ReplaceNullValue sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     deletable:false,",
 				"     insertable:true,",
@@ -198,21 +199,7 @@
 				"     upsertable:false,",
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true,",
-				"     mapColumn(",
-				"          {Customer Key},",
-				"          Customer,",
-				"          {Bill To Customer},",
-				"          {Category },",
-				"          {Buying Group},",
-				"          {Primary Contact},",
-				"          {Postal Code},",
-				"          {Valid From},",
-				"          {Valid To},",
-				"          IsActive,",
-				"          {WWI Customer ID},",
-				"          {Lineage Key}",
-				"     )) ~> UpdateDimensionTable"
+				"     skipDuplicateMapOutputs: true) ~> UpdateDimensionCustomer"
 			]
 		}
 	}

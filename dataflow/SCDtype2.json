@@ -53,9 +53,6 @@
 					"name": "MaskAsUpdate"
 				},
 				{
-					"name": "MaskAsInsert"
-				},
-				{
 					"name": "DeletUnwantColumn",
 					"description": "Delete hash columns."
 				},
@@ -73,13 +70,6 @@
 					"name": "GetMaxSurrogateKey"
 				},
 				{
-					"name": "AddColumns",
-					"description": "Add two columns that match DW customer table. "
-				},
-				{
-					"name": "AddActiveStatus"
-				},
-				{
 					"name": "AddActiveColumn",
 					"description": "Add a column to show status."
 				},
@@ -90,7 +80,13 @@
 					"name": "Union"
 				},
 				{
-					"name": "ReplaceNullValue"
+					"name": "AddSurrogateKey"
+				},
+				{
+					"name": "MaskAsInsert"
+				},
+				{
+					"name": "ReplaceNullVale"
 				}
 			],
 			"scriptLines": [
@@ -126,23 +122,22 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> DWcustomer",
-				"AddActiveStatus derive(HashId = md5(CustomerID),",
+				"ODScustomer derive(HashId = md5(CustomerID),",
 				"          HashColumn = md5(byNames(['CustomerName','BillToCustomerID','CustomerCategoryID','BuyingGroupID','PrimaryContactPersonID','PostalCityID','ValidFrom','ValidTo']))) ~> AddHashValue",
-				"AddActiveColumn derive(HashId = md5({Customer Key}),",
+				"AddSurrogateKey derive(HashId = md5({Customer Key}),",
 				"          HashColumn = md5(byNames(['{WWI Customer ID}','Customer','{Bill To Customer}','Category','{Buying Group}','{Primary Contact}','{Postal Code}','{Valid From}','{Valid To}','{Valid To}','{Lineage Key}']))) ~> AddHashId",
 				"AddHashValue, AddHashId exists(AddHashValue@HashId == AddHashId@HashId",
 				"     && AddHashValue@HashColumn == AddHashId@HashColumn,",
 				"     negate:true,",
 				"     broadcast: 'auto')~> CheckExistUpdateValue",
-				"AddHashId, AddHashValue exists(AddHashId@HashId == AddHashValue@HashId",
+				"AddHashId, CheckExistUpdateValue exists(AddHashId@HashId == AddHashValue@HashId",
 				"     && AddHashId@HashColumn == AddHashValue@HashColumn,",
 				"     negate:false,",
 				"     broadcast: 'auto')~> FilterUpdateRecords",
 				"FilterUpdateRecords derive(IsActive = 0,",
 				"          {Valid To} = currentDate()) ~> UpdateObsolete",
 				"UpdateObsolete alterRow(updateIf(true())) ~> MaskAsUpdate",
-				"UpdateKeyValue alterRow(insertIf(true())) ~> MaskAsInsert",
-				"MaskAsInsert select(mapColumn(",
+				"UpdateKeyValue select(mapColumn(",
 				"          {Customer Key} = CustomerID,",
 				"          Customer = CustomerName,",
 				"          {Bill To Customer} = BillToCustomerID,",
@@ -153,8 +148,9 @@
 				"          {Valid From} = ValidFrom,",
 				"          {Valid To} = ValidTo,",
 				"          IsActive,",
-				"          {WWI Customer ID} = {WWI Customer Key},",
-				"          {Lineage Key}",
+				"          {WWI Customer ID},",
+				"          {Lineage Key},",
+				"          Key",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> DeletUnwantColumn",
@@ -170,7 +166,8 @@
 				"          {Valid From},",
 				"          {Valid To},",
 				"          {Lineage Key},",
-				"          IsActive",
+				"          IsActive,",
+				"          Key",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> DropUnwantColumn",
@@ -183,15 +180,19 @@
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> JoinWithMaxSurrogateKey",
 				"AddHashId aggregate(MaxSurrogateKey = max(toInteger(byName('Key')))) ~> GetMaxSurrogateKey",
-				"ODScustomer derive({WWI Customer Key} = CustomerID,",
-				"          {Lineage Key} = 0) ~> AddColumns",
-				"AddColumns derive(IsActive = 1) ~> AddActiveStatus",
 				"DWcustomer derive(IsActive = 1) ~> AddActiveColumn",
-				"JoinWithMaxSurrogateKey derive(Key = Key + MaxSurrogateKey) ~> UpdateKeyValue",
+				"JoinWithMaxSurrogateKey derive(Key = Key + MaxSurrogateKey,",
+				"          IsActive = 1,",
+				"          ValidFrom = currentDate(),",
+				"          {WWI Customer ID} = CustomerID,",
+				"          {Lineage Key} = 0) ~> UpdateKeyValue",
 				"DeletUnwantColumn, DropUnwantColumn union(byName: true)~> Union",
-				"Union derive({Buying Group} = iifNull({Buying Group}, 'Unknown'),",
-				"          Category = iifNull(Category, 'Unknown')) ~> ReplaceNullValue",
-				"ReplaceNullValue sink(allowSchemaDrift: true,",
+				"AddActiveColumn keyGenerate(output(Key as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> AddSurrogateKey",
+				"ReplaceNullVale alterRow(insertIf(true())) ~> MaskAsInsert",
+				"Union derive({Buying Group} = iifNull({Buying Group}, 'Unknown')) ~> ReplaceNullVale",
+				"MaskAsInsert sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     deletable:false,",
 				"     insertable:true,",

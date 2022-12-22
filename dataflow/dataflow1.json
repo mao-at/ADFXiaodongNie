@@ -80,6 +80,15 @@
 				},
 				{
 					"name": "FilterNullValue"
+				},
+				{
+					"name": "AddKey"
+				},
+				{
+					"name": "GetMaxSurrogateKey"
+				},
+				{
+					"name": "JoinWithMaxSurrogateKey"
 				}
 			],
 			"scriptLines": [
@@ -124,7 +133,7 @@
 				"     negate:true,",
 				"     broadcast: 'auto')~> CheckExistUpdateValue",
 				"AddHashId derive(IsActive = 1) ~> AddActiveColumn",
-				"CheckExistUpdateValue derive(IsActive = 1) ~> AddActiveStatus",
+				"JoinWithMaxSurrogateKey derive(IsActive = 1) ~> AddActiveStatus",
 				"AddActiveColumn, AddActiveStatus exists(AddHashId@HashId == AddHashValue@HashId",
 				"     && AddHashId@HashColumn == AddHashValue@HashColumn,",
 				"     negate:false,",
@@ -136,7 +145,7 @@
 				"UpdateObsolete alterRow(updateIf(true())) ~> MaskAsUpdate",
 				"AddColumn alterRow(insertIf(true())) ~> MaskAsInsert",
 				"MaskAsInsert select(mapColumn(",
-				"          {Customer Key} = CustomerID,",
+				"          {Customer Key} = ODScustomer@CustomerID,",
 				"          Customer = CustomerName,",
 				"          {Bill To Customer} = BillToCustomerID,",
 				"          {Category } = CustomerCategoryID,",
@@ -169,6 +178,15 @@
 				"     skipDuplicateMapOutputs: true) ~> DropUnwantColumn",
 				"DeletUnwantColumn, DropUnwantColumn union(byName: true)~> UnionODSandDW",
 				"ODScustomer filter(isNull(CustomerCategoryID)) ~> FilterNullValue",
+				"CheckExistUpdateValue keyGenerate(output(Key as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> AddKey",
+				"AddHashId aggregate(MaxSurrogateKey = max(toInteger(byName('Key')))) ~> GetMaxSurrogateKey",
+				"AddKey, GetMaxSurrogateKey join(Key == MaxSurrogateKey || true(),",
+				"     joinType:'cross',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> JoinWithMaxSurrogateKey",
 				"UnionODSandDW sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     deletable:false,",

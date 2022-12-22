@@ -87,7 +87,7 @@
 					"name": "UpdateKeyValue"
 				},
 				{
-					"name": "union1"
+					"name": "Union"
 				},
 				{
 					"name": "ReplaceNullValue"
@@ -134,7 +134,7 @@
 				"     && AddHashValue@HashColumn == AddHashId@HashColumn,",
 				"     negate:true,",
 				"     broadcast: 'auto')~> CheckExistUpdateValue",
-				"AddHashId, CheckExistUpdateValue exists(AddHashId@HashId == AddHashValue@HashId",
+				"AddHashId, AddHashValue exists(AddHashId@HashId == AddHashValue@HashId",
 				"     && AddHashId@HashColumn == AddHashValue@HashColumn,",
 				"     negate:false,",
 				"     broadcast: 'auto')~> FilterUpdateRecords",
@@ -188,8 +188,8 @@
 				"AddColumns derive(IsActive = 1) ~> AddActiveStatus",
 				"DWcustomer derive(IsActive = 1) ~> AddActiveColumn",
 				"JoinWithMaxSurrogateKey derive(Key = Key + MaxSurrogateKey) ~> UpdateKeyValue",
-				"DeletUnwantColumn, DropUnwantColumn union(byName: true)~> union1",
-				"union1 derive({Buying Group} = iifNull({Buying Group}, 'Unknown'),",
+				"DeletUnwantColumn, DropUnwantColumn union(byName: true)~> Union",
+				"Union derive({Buying Group} = iifNull({Buying Group}, 'Unknown'),",
 				"          Category = iifNull(Category, 'Unknown')) ~> ReplaceNullValue",
 				"ReplaceNullValue sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",

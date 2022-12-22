@@ -25,7 +25,7 @@
 						"referenceName": "sql_dataset",
 						"type": "DatasetReference"
 					},
-					"name": "UpdateDimensionSink"
+					"name": "UpdateDimensionCustomer"
 				}
 			],
 			"transformations": [
@@ -199,8 +199,21 @@
 				"     updateable:false,",
 				"     upsertable:false,",
 				"     format: 'table',",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> UpdateDimensionSink"
+				"     mapColumn(",
+				"          {Customer Key},",
+				"          Customer,",
+				"          {Bill To Customer},",
+				"          Category,",
+				"          {Buying Group},",
+				"          {Primary Contact},",
+				"          {Postal Code},",
+				"          {Valid From},",
+				"          {Valid To},",
+				"          IsActive,",
+				"          {WWI Customer ID},",
+				"          {Lineage Key},",
+				"          Key",
+				"     )) ~> UpdateDimensionCustomer"
 			]
 		}
 	}

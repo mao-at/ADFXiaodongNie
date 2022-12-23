@@ -7,18 +7,6 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "adfpracticexd"
 		},
-		"AzureSqlDatabase1_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase1'"
-		},
-		"linkedService2_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'linkedService2'"
-		},
-		"linkedService3_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'linkedService3'"
-		},
 		"sql_database_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'sql_database'",
@@ -50,15 +38,6 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
-					},
-					"AzureSqlDatabase1_connectionString": {
-						"value": "[parameters('AzureSqlDatabase1_connectionString')]"
-					},
-					"linkedService2_connectionString": {
-						"value": "[parameters('linkedService2_connectionString')]"
-					},
-					"linkedService3_connectionString": {
-						"value": "[parameters('linkedService3_connectionString')]"
 					},
 					"sql_database_connectionString": {
 						"value": "[parameters('sql_database_connectionString')]"

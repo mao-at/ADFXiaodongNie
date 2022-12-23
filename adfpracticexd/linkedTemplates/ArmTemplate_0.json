@@ -611,7 +611,7 @@
 										"value": "@{activity('LookupNewWaterMarkActivity').output.firstRow.NewWatermarkvalue}",
 										"type": "Expression"
 									},
-									"type": "Int64"
+									"type": "String"
 								},
 								"TableName": {
 									"value": {
@@ -638,7 +638,7 @@
 						"defaultValue": "Sales.Customers"
 					},
 					"LastModifyTimeCode": {
-						"type": "int",
+						"type": "string",
 						"defaultValue": "LastEditedBy"
 					},
 					"StoreProcedureName": {

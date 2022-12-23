@@ -42,7 +42,10 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "@concat('select MAX(',pipeline().parameters.LastModifyTimeCode,') as NewWatermarkValue from ',pipeline().parameters.SourceTable)",
+						"sqlReaderQuery": {
+							"value": "@concat('select MAX(',pipeline().parameters.LastModifyTimeCode,') as NewWatermarkValue from ',pipeline().parameters.SourceTable)",
+							"type": "Expression"
+						},
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
@@ -151,7 +154,7 @@
 								"value": "@{activity('LookupNewWaterMarkActivity').output.firstRow.NewWatermarkvalue}",
 								"type": "Expression"
 							},
-							"type": "Int64"
+							"type": "String"
 						},
 						"TableName": {
 							"value": {

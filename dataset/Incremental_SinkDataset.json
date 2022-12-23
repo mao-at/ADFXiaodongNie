@@ -1,5 +1,5 @@
 {
-	"name": "SinkDataset",
+	"name": "Incremental_SinkDataset",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureBlobStorage",

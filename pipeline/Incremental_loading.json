@@ -1,5 +1,5 @@
 {
-	"name": "pipeline1",
+	"name": "Incremental_loading",
 	"properties": {
 		"activities": [
 			{
@@ -42,12 +42,12 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "select MAX(LastModifytime) as NewWatermarkvalue from data_source_table",
+						"sqlReaderQuery": "@concat('select MAX(',pipeline().parameters.LastModifyTimeCode,') as NewWatermarkValue from ',pipeline().parameters.SourceTable)",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
 					"dataset": {
-						"referenceName": "SouceDataset",
+						"referenceName": "Incremental_SouceDataset",
 						"type": "DatasetReference"
 					}
 				}
@@ -80,7 +80,10 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "select * from data_source_table where LastModifytime > '@{activity('LookupOldWaterMarkActivity').output.firstRow.WatermarkValue}' and LastModifytime <= '@{activity('LookupNewWaterMarkActivity').output.firstRow.NewWatermarkvalue}'",
+						"sqlReaderQuery": {
+							"value": "select * from @{pipeline().parameters.SourceTable} where @{pipeline().parameters.LastModifyTimeCode} > '@{activity('LookupOldWaterMarkActivity').output.firstRow.WatermarkValue}' and @{pipeline().parameters.LastModifyTimeCode} <= '@{activity('LookupNewWaterMarkActivity').output.firstRow.NewWatermarkValue}'",
+							"type": "Expression"
+						},
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
@@ -107,19 +110,19 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "SouceDataset",
+						"referenceName": "Incremental_SouceDataset",
 						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
 					{
-						"referenceName": "SinkDataset",
+						"referenceName": "Incremental_SinkDataset",
 						"type": "DatasetReference"
 					}
 				]
 			},
 			{
-				"name": "UpdateWargerMark",
+				"name": "UpdateWaterMark",
 				"type": "SqlServerStoredProcedure",
 				"dependsOn": [
 					{
@@ -138,14 +141,17 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"storedProcedureName": "[dbo].[usp_write_watermark]",
+					"storedProcedureName": {
+						"value": "@pipeline().parameters.StoreProcedureName",
+						"type": "Expression"
+					},
 					"storedProcedureParameters": {
-						"LastModifiedtime": {
+						"LastModifiedtimeCode": {
 							"value": {
 								"value": "@{activity('LookupNewWaterMarkActivity').output.firstRow.NewWatermarkvalue}",
 								"type": "Expression"
 							},
-							"type": "Datetime"
+							"type": "Int64"
 						},
 						"TableName": {
 							"value": {
@@ -162,6 +168,20 @@
 				}
 			}
 		],
+		"parameters": {
+			"SourceTable": {
+				"type": "string",
+				"defaultValue": "Sales.Customers"
+			},
+			"LastModifyTimeCode": {
+				"type": "string",
+				"defaultValue": "LastEditedBy"
+			},
+			"StoreProcedureName": {
+				"type": "String",
+				"defaultValue": "dbo.usp_write_watermark"
+			}
+		},
 		"annotations": []
 	}
 }

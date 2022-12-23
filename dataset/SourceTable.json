@@ -1,5 +1,5 @@
 {
-	"name": "Watermarktable",
+	"name": "SourceTable",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureSqlDatabase",
@@ -9,11 +9,16 @@
 		"type": "AzureSqlTable",
 		"schema": [
 			{
-				"name": "TableName",
+				"name": "PersonID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Name",
 				"type": "varchar"
 			},
 			{
-				"name": "WatermarkValue",
+				"name": "LastModifytime",
 				"type": "datetime",
 				"precision": 23,
 				"scale": 3
@@ -21,7 +26,7 @@
 		],
 		"typeProperties": {
 			"schema": "dbo",
-			"table": "watermarktable"
+			"table": "data_source_table"
 		}
 	}
 }

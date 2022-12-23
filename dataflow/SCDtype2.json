@@ -86,10 +86,13 @@
 					"name": "MaskAsInsert"
 				},
 				{
-					"name": "ReplaceNullVale"
+					"name": "ReplaceNullValue"
 				}
 			],
 			"scriptLines": [
+				"parameters{",
+				"     PrimaryKey as integer ({Customer Key})",
+				"}",
 				"source(output(",
 				"          CustomerID as integer,",
 				"          CustomerName as string,",
@@ -186,19 +189,22 @@
 				"          ValidFrom = currentDate(),",
 				"          {WWI Customer ID} = CustomerID,",
 				"          {Lineage Key} = 0) ~> UpdateKeyValue",
-				"DeletUnwantColumn, DropUnwantColumn union(byName: true)~> Union",
+				"MaskAsInsert, DropUnwantColumn union(byName: true)~> Union",
 				"AddActiveColumn keyGenerate(output(Key as long),",
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> AddSurrogateKey",
-				"ReplaceNullVale alterRow(insertIf(true())) ~> MaskAsInsert",
-				"Union derive({Buying Group} = iifNull({Buying Group}, 'Unknown')) ~> ReplaceNullVale",
-				"MaskAsInsert sink(allowSchemaDrift: true,",
+				"ReplaceNullValue alterRow(upsertIf(true())) ~> MaskAsInsert",
+				"DeletUnwantColumn derive({Buying Group} = iifNull({Buying Group}, 'Unknown'),",
+				"          Category = iifNull(Category, 'Unknown')) ~> ReplaceNullValue",
+				"Union sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     deletable:false,",
 				"     insertable:true,",
 				"     updateable:false,",
 				"     upsertable:false,",
 				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
 				"     mapColumn(",
 				"          {Customer Key},",
 				"          Customer,",

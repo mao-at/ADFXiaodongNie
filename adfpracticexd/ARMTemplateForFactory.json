@@ -316,7 +316,7 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "LkpOldWatermarkActivity",
+						"name": "LookupOldWaterMarkActivity",
 						"type": "Lookup",
 						"dependsOn": [],
 						"policy": {
@@ -330,18 +330,19 @@
 						"typeProperties": {
 							"source": {
 								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select * from watermarktable",
 								"queryTimeout": "02:00:00",
 								"partitionOption": "None"
 							},
 							"dataset": {
-								"referenceName": "Watermarktable",
+								"referenceName": "watermarkDataset",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						}
 					},
 					{
-						"name": "LkpNewWatermarkActivity",
+						"name": "LookupNewWaterMarkActivity",
 						"type": "Lookup",
 						"dependsOn": [],
 						"policy": {
@@ -355,29 +356,29 @@
 						"typeProperties": {
 							"source": {
 								"type": "AzureSqlSource",
-								"sqlReaderQuery": "select MAX(LastModifytime) as NewWatermarkvalue from SourceTable",
+								"sqlReaderQuery": "select MAX(LastModifytime) as NewWatermarkvalue from data_source_table",
 								"queryTimeout": "02:00:00",
 								"partitionOption": "None"
 							},
 							"dataset": {
-								"referenceName": "SourceTable",
+								"referenceName": "SouceDataset",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						}
 					},
 					{
-						"name": "Copy_date",
+						"name": "IncrementalCopyActivity",
 						"type": "Copy",
 						"dependsOn": [
 							{
-								"activity": "LkpNewWatermarkActivity",
+								"activity": "LookupOldWaterMarkActivity",
 								"dependencyConditions": [
 									"Succeeded"
 								]
 							},
 							{
-								"activity": "LkpOldWatermarkActivity",
+								"activity": "LookupNewWaterMarkActivity",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -395,7 +396,7 @@
 							"source": {
 								"type": "AzureSqlSource",
 								"sqlReaderQuery": {
-									"value": "select * from SourceTable where LastModifytime > '@{activity('LkpOldWaterMarkActivity').output.firstRow.WatermarkValue}' and LastModifytime <= '@{activity('LkpNewWaterMarkActivity').output.firstRow.NewWatermarkvalue}",
+									"value": "select * from data_source_table where LastModifytime > '@{activity('LookupOldWaterMarkActivity').output.firstRow.WatermarkValue}' and LastModifytime <= '@{activity('LookupNewWaterMarkActivity').output.firstRow.NewWatermarkvalue}'",
 									"type": "Expression"
 								},
 								"queryTimeout": "02:00:00",
@@ -424,18 +425,61 @@
 						},
 						"inputs": [
 							{
-								"referenceName": "SourceTable",
+								"referenceName": "SouceDataset",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						],
 						"outputs": [
 							{
-								"referenceName": "DelimitedText",
+								"referenceName": "SinkDataset",
 								"type": "DatasetReference",
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "UpdateWargerMark",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "IncrementalCopyActivity",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[usp_write_watermark]",
+							"storedProcedureParameters": {
+								"LastModifiedtime": {
+									"value": {
+										"value": "@{activity('LookupNewWaterMarkActivity').output.firstRow.NewWatermarkvalue}",
+										"type": "Expression"
+									},
+									"type": "Datetime"
+								},
+								"TableName": {
+									"value": {
+										"value": "@{activity('LookupOldWaterMarkActivity').output.firstRow.TableName}",
+										"type": "Expression"
+									},
+									"type": "String"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureSqlDatabase",
+							"type": "LinkedServiceReference"
+						}
 					}
 				],
 				"policy": {
@@ -445,13 +489,14 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/Watermarktable')]",
-				"[concat(variables('factoryId'), '/datasets/SourceTable')]",
-				"[concat(variables('factoryId'), '/datasets/DelimitedText')]"
+				"[concat(variables('factoryId'), '/datasets/watermarkDataset')]",
+				"[concat(variables('factoryId'), '/datasets/SouceDataset')]",
+				"[concat(variables('factoryId'), '/datasets/SinkDataset')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DelimitedText')]",
+			"name": "[concat(parameters('factoryName'), '/SinkDataset')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -465,10 +510,10 @@
 					"location": {
 						"type": "AzureBlobStorageLocation",
 						"fileName": {
-							"value": "@concat('Incremental',pipeline().RunId,'txt')",
+							"value": "@concat('Incremental-', pipeline().RunId, '.txt')",
 							"type": "Expression"
 						},
-						"folderPath": "IncrementalCopy",
+						"folderPath": "incrementalcopy",
 						"container": "database"
 					},
 					"columnDelimiter": ",",
@@ -482,7 +527,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/SourceTable')]",
+			"name": "[concat(parameters('factoryName'), '/SouceDataset')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -512,38 +557,6 @@
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "data_source_table"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Watermarktable')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureSqlDatabase",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "TableName",
-						"type": "varchar"
-					},
-					{
-						"name": "WatermarkValue",
-						"type": "datetime",
-						"precision": 23,
-						"scale": 3
-					}
-				],
-				"typeProperties": {
-					"schema": "dbo",
-					"table": "watermarktable"
 				}
 			},
 			"dependsOn": [
@@ -595,6 +608,38 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/sql_database')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/watermarkDataset')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "TableName",
+						"type": "varchar"
+					},
+					{
+						"name": "WatermarkValue",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "watermarktable"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase')]"
 			]
 		},
 		{

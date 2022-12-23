@@ -5,6 +5,16 @@
 			"referenceName": "AzureSqlDatabase",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"Schema": {
+				"type": "String",
+				"defaultValue": "Sales"
+			},
+			"TableName": {
+				"type": "String",
+				"defaultValue": "Customers"
+			}
+		},
 		"annotations": [],
 		"type": "AzureSqlTable",
 		"schema": [
@@ -25,8 +35,14 @@
 			}
 		],
 		"typeProperties": {
-			"schema": "dbo",
-			"table": "data_source_table"
+			"schema": {
+				"value": "@dataset().Schema",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().TableName",
+				"type": "Expression"
+			}
 		}
 	}
 }

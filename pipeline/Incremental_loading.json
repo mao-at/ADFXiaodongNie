@@ -114,7 +114,11 @@
 				"inputs": [
 					{
 						"referenceName": "Incremental_SouceDataset",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"Schema": "Sales",
+							"TableName": "Customers"
+						}
 					}
 				],
 				"outputs": [
